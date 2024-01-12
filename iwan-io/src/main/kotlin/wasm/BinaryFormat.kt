@@ -12,8 +12,7 @@ import dev.fir3.iwan.io.wasm.serialization.instructions.BlockTypeInstructionStra
 import dev.fir3.iwan.io.wasm.serialization.instructions.CallInstructionStrategy
 import dev.fir3.iwan.io.wasm.serialization.instructions.ConstInstructionStrategy
 import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionStrategy
-import dev.fir3.iwan.io.wasm.serialization.instructions.blockTypes.BlockTypeStrategy
-import dev.fir3.iwan.io.wasm.serialization.sections.*
+import dev.fir3.iwan.io.wasm.serialization.instructions.BlockTypeStrategy
 import dev.fir3.iwan.io.wasm.serialization.valueTypes.NumberTypeStrategy
 import dev.fir3.iwan.io.wasm.serialization.valueTypes.ReferenceTypeStrategy
 import dev.fir3.iwan.io.wasm.serialization.valueTypes.ValueTypeStrategy
@@ -31,36 +30,25 @@ object BinaryFormat {
         b.register(BranchInstructionStrategy)
         b.register(CallIndirectInstructionStrategy)
         b.register(CallInstructionStrategy)
-        b.register(CodeSectionStrategy)
         b.register(CodeStrategy)
-        b.register(CustomSectionStrategy)
-        b.register(DataSectionStrategy)
         b.register(DataStrategy)
-        b.register(ElementSectionStrategy)
         b.register(ElementSegmentStrategy)
-        b.register(ExportSectionStrategy)
         b.register(ExportStrategy)
         b.register(ExpressionStrategy)
         b.register(FlatInstructionStrategy)
-        b.register(FunctionSectionStrategy)
         b.register(FunctionTypeStrategy)
-        b.register(GlobalSectionStrategy)
         b.register(GlobalStrategy)
         b.register(GlobalTypeStrategy)
-        b.register(ImportSectionStrategy)
         b.register(ImportStrategy)
         b.register(ConstInstructionStrategy)
         b.register(InstructionStrategy)
         b.register(MemoryInstructionStrategy)
-        b.register(MemorySectionStrategy)
         b.register(MemoryTypeStrategy)
         b.register(ModuleStrategy)
         b.register(NumberTypeStrategy)
         b.register(ReferenceTypeStrategy)
         b.register(SectionStrategy)
-        b.register(TableSectionStrategy)
         b.register(TableTypeStrategy)
-        b.register(TypeSectionStrategy)
         b.register(ValueTypeStrategy)
         b.register(VariableInstructionStrategy)
         b.register(VectorTypeStrategy)

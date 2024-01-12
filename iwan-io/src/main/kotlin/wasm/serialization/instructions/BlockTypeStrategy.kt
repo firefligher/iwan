@@ -1,4 +1,4 @@
-package dev.fir3.iwan.io.wasm.serialization.instructions.blockTypes
+package dev.fir3.iwan.io.wasm.serialization.instructions
 
 import dev.fir3.iwan.io.serialization.DeserializationContext
 import dev.fir3.iwan.io.serialization.DeserializationStrategy
