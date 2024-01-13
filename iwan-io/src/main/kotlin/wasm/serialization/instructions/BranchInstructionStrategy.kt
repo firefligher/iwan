@@ -5,21 +5,26 @@ import dev.fir3.iwan.io.serialization.DeserializationStrategy
 import dev.fir3.iwan.io.source.ByteSource
 import dev.fir3.iwan.io.source.readUInt8
 import dev.fir3.iwan.io.source.readVarUInt32
-import dev.fir3.iwan.io.wasm.models.instructions.BranchInstruction
-import dev.fir3.iwan.io.wasm.models.instructions.ConditionalBranch
-import dev.fir3.iwan.io.wasm.models.instructions.TableBranch
-import dev.fir3.iwan.io.wasm.models.instructions.UnconditionalBranch
+import dev.fir3.iwan.io.wasm.models.instructions.*
 import java.io.IOException
+import kotlin.reflect.KClass
 
 internal object BranchInstructionStrategy :
-    DeserializationStrategy<BranchInstruction> {
+    InstructionDeserializationStrategy {
+    @Throws(IOException::class)
     override fun deserialize(
         source: ByteSource,
-        context: DeserializationContext
-    ) = when (val instrId = source.readUInt8()) {
-        InstructionIds.BRANCH -> UnconditionalBranch(source.readVarUInt32())
-        InstructionIds.BRANCH_IF -> ConditionalBranch(source.readVarUInt32())
-        InstructionIds.BRANCH_TABLE -> {
+        context: DeserializationContext,
+        model: KClass<out Instruction>,
+        instance: Instruction?
+    ) = when (model) {
+        UnconditionalBranchInstruction::class ->
+            UnconditionalBranchInstruction(source.readVarUInt32())
+
+        ConditionalBranchInstruction::class ->
+            ConditionalBranchInstruction(source.readVarUInt32())
+
+        TableBranchInstruction::class -> {
             val indicesCount = source.readVarUInt32()
             val indices = mutableListOf<UInt>()
 
@@ -28,8 +33,9 @@ internal object BranchInstructionStrategy :
             }
 
             val tableIndex = source.readVarUInt32()
-            TableBranch(indices, tableIndex)
+            TableBranchInstruction(indices, tableIndex)
         }
-        else -> throw IOException("Invalid branch instruction '$instrId'")
+
+        else -> throw IOException("Invalid branch instruction type: $model")
     }
 }

@@ -1,19 +1,15 @@
 package dev.fir3.iwan.io.wasm.serialization.instructions
 
 import dev.fir3.iwan.io.serialization.DeserializationContext
-import dev.fir3.iwan.io.serialization.DeserializationStrategy
 import dev.fir3.iwan.io.serialization.deserialize
 import dev.fir3.iwan.io.source.*
-import dev.fir3.iwan.io.source.expectUInt8
-import dev.fir3.iwan.io.source.peekUInt8
-import dev.fir3.iwan.io.source.readUInt8
 import dev.fir3.iwan.io.wasm.models.instructions.*
 import dev.fir3.iwan.io.wasm.models.instructions.blockTypes.BlockType
 import java.io.IOException
+import kotlin.reflect.KClass
 
 internal object BlockTypeInstructionStrategy :
-    DeserializationStrategy<BlockTypeInstruction> {
-
+    InstructionDeserializationStrategy {
     @Throws(IOException::class)
     private fun <TBlockTypeInstruction : BlockTypeInstruction> build(
         source: ByteSource,
@@ -63,23 +59,26 @@ internal object BlockTypeInstructionStrategy :
         return factory(blockType, ifBody, elseBody)
     }
 
+    @Throws(IOException::class)
     override fun deserialize(
         source: ByteSource,
-        context: DeserializationContext
-    ) = when (val instrId = source.readUInt8()) {
-        InstructionIds.BLOCK -> build(
+        context: DeserializationContext,
+        model: KClass<out Instruction>,
+        instance: Instruction?
+    ) = when (model) {
+        BlockInstruction::class -> build(
             source,
             context,
             false
         ) { blockType, body, _ -> BlockInstruction(blockType, body) }
 
-        InstructionIds.LOOP -> build(
+        LoopInstruction::class -> build(
             source,
             context,
             false
         ) { blockType, body, _ -> LoopInstruction(blockType, body) }
 
-        InstructionIds.IF -> build(
+        ConditionalBlockInstruction::class -> build(
             source,
             context,
             true
@@ -87,6 +86,6 @@ internal object BlockTypeInstructionStrategy :
             ConditionalBlockInstruction(blockType, ifBody, elseBody)
         }
 
-        else -> throw IOException("Invalid block instruction '$instrId'")
+        else -> throw IOException("Invalid block type: $model")
     }
 }

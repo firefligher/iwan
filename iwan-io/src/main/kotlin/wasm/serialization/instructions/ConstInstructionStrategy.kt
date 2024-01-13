@@ -8,27 +8,30 @@ import dev.fir3.iwan.io.source.readVarInt32
 import dev.fir3.iwan.io.source.readVarInt64
 import dev.fir3.iwan.io.wasm.models.instructions.*
 import java.io.IOException
+import kotlin.reflect.KClass
 
-internal object ConstInstructionStrategy :
-    DeserializationStrategy<ConstInstruction<*>> {
+internal object ConstInstructionStrategy : InstructionDeserializationStrategy {
+    @Throws(IOException::class)
     override fun deserialize(
         source: ByteSource,
-        context: DeserializationContext
-    ) = when (val typeId = source.readUInt8()) {
-        InstructionIds.FLOAT32_CONST ->
+        context: DeserializationContext,
+        model: KClass<out Instruction>,
+        instance: Instruction?
+    ) = when (model) {
+        Float32ConstInstruction::class ->
             Float32ConstInstruction(source.readFloat32())
 
-        InstructionIds.FLOAT64_CONST ->
+        Float64ConstInstruction::class ->
             Float64ConstInstruction(source.readFloat64())
 
-        InstructionIds.INT32_CONST ->
+        Int32ConstInstruction::class ->
             Int32ConstInstruction(source.readVarInt32())
 
-        InstructionIds.INT64_CONST ->
+        Int64ConstInstruction::class ->
             Int64ConstInstruction(source.readVarInt64())
 
         else -> throw IOException(
-            "Unsupported numeric constant type '$typeId'"
+            "Unsupported numeric constant type: $model"
         )
     }
 }

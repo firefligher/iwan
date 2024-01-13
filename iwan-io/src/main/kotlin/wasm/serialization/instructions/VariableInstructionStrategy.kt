@@ -7,31 +7,34 @@ import dev.fir3.iwan.io.source.readUInt8
 import dev.fir3.iwan.io.source.readVarUInt32
 import dev.fir3.iwan.io.wasm.models.instructions.*
 import java.io.IOException
+import kotlin.reflect.KClass
 
 internal object VariableInstructionStrategy :
-    DeserializationStrategy<VariableInstruction> {
+    InstructionDeserializationStrategy {
     @Throws(IOException::class)
     override fun deserialize(
         source: ByteSource,
-        context: DeserializationContext
-    ) = when (val instrId = source.readUInt8()) {
-        InstructionIds.GLOBAL_GET ->
+        context: DeserializationContext,
+        model: KClass<out Instruction>,
+        instance: Instruction?
+    ) = when (model) {
+        GlobalGetInstruction::class ->
             GlobalGetInstruction(source.readVarUInt32())
 
-        InstructionIds.GLOBAL_SET ->
+        GlobalSetInstruction::class ->
             GlobalSetInstruction(source.readVarUInt32())
 
-        InstructionIds.LOCAL_GET ->
+        LocalGetInstruction::class ->
             LocalGetInstruction(source.readVarUInt32())
 
-        InstructionIds.LOCAL_SET ->
+        LocalSetInstruction::class ->
             LocalSetInstruction(source.readVarUInt32())
 
-        InstructionIds.LOCAL_TEE ->
+        LocalTeeInstruction::class ->
             LocalTeeInstruction(source.readVarUInt32())
 
         else -> throw IOException(
-            "Invalid variable instruction with instrId '$instrId'"
+            "Invalid variable instruction type: $model"
         )
     }
 }

@@ -7,9 +7,10 @@ import dev.fir3.iwan.io.source.readUInt8
 import dev.fir3.iwan.io.source.readVarUInt32
 import dev.fir3.iwan.io.wasm.models.instructions.*
 import java.io.IOException
+import kotlin.reflect.KClass
 
 internal object MemoryInstructionStrategy :
-    DeserializationStrategy<MemoryInstruction> {
+    InstructionDeserializationStrategy {
     private inline fun <TInstruction : MemoryInstruction> build(
         source: ByteSource,
         factory: (align: UInt, offset: UInt) -> TInstruction
@@ -19,36 +20,37 @@ internal object MemoryInstructionStrategy :
         return factory(align, offset)
     }
 
-    @Throws(IOException::class)
     override fun deserialize(
         source: ByteSource,
-        context: DeserializationContext
-    ) = when (val instrId = source.readUInt8()) {
-        InstructionIds.FLOAT32_LOAD -> build(source, ::Float32Load)
-        InstructionIds.FLOAT32_STORE -> build(source, ::Float32Store)
-        InstructionIds.FLOAT64_LOAD -> build(source, ::Float64Load)
-        InstructionIds.FLOAT64_STORE -> build(source, ::Float64Store)
-        InstructionIds.INT32_LOAD -> build(source, ::Int32Load)
-        InstructionIds.INT32_LOAD8_S -> build(source, ::Int32Load8S)
-        InstructionIds.INT32_LOAD8_U -> build(source, ::Int32Load8U)
-        InstructionIds.INT32_LOAD16_S -> build(source, ::Int32Load16S)
-        InstructionIds.INT32_LOAD16_U -> build(source, ::Int32Load16U)
-        InstructionIds.INT32_STORE -> build(source, ::Int32Store)
-        InstructionIds.INT32_STORE8 -> build(source, ::Int32Store8)
-        InstructionIds.INT32_STORE16 -> build(source, ::Int32Store16)
-        InstructionIds.INT64_LOAD -> build(source, ::Int64Load)
-        InstructionIds.INT64_LOAD8_S -> build(source, ::Int64Load8S)
-        InstructionIds.INT64_LOAD8_U -> build(source, ::Int64Load8U)
-        InstructionIds.INT64_LOAD16_S -> build(source, ::Int64Load16S)
-        InstructionIds.INT64_LOAD16_U -> build(source, ::Int64Load16U)
-        InstructionIds.INT64_LOAD32_S -> build(source, ::Int64Load32S)
-        InstructionIds.INT64_LOAD32_U -> build(source, ::Int64Load32U)
-        InstructionIds.INT64_STORE -> build(source, ::Int64Store)
-        InstructionIds.INT64_STORE8 -> build(source, ::Int64Store8)
-        InstructionIds.INT64_STORE16 -> build(source, ::Int64Store16)
-        InstructionIds.INT64_STORE32 -> build(source, ::Int64Store32)
-        InstructionIds.MEMORY_GROW -> MemoryGrow
-        InstructionIds.MEMORY_SIZE -> MemorySize
-        else -> throw IOException("Invalid memory instruction '$instrId'")
+        context: DeserializationContext,
+        model: KClass<out Instruction>,
+        instance: Instruction?
+    ) = when (model) {
+        Float32Load::class -> build(source, ::Float32Load)
+        Float32Store::class -> build(source, ::Float32Store)
+        Float64Load::class -> build(source, ::Float64Load)
+        Float64Store::class -> build(source, ::Float64Store)
+        Int32Load::class -> build(source, ::Int32Load)
+        Int32Load8S::class -> build(source, ::Int32Load8S)
+        Int32Load8U::class -> build(source, ::Int32Load8U)
+        Int32Load16S::class -> build(source, ::Int32Load16S)
+        Int32Load16U::class -> build(source, ::Int32Load16U)
+        Int32Store::class -> build(source, ::Int32Store)
+        Int32Store8::class -> build(source, ::Int32Store8)
+        Int32Store16::class -> build(source, ::Int32Store16)
+        Int64Load::class -> build(source, ::Int64Load)
+        Int64Load8S::class -> build(source, ::Int64Load8S)
+        Int64Load8U::class -> build(source, ::Int64Load8U)
+        Int64Load16S::class -> build(source, ::Int64Load16S)
+        Int64Load16U::class -> build(source, ::Int64Load16U)
+        Int64Load32S::class -> build(source, ::Int64Load32S)
+        Int64Load32U::class -> build(source, ::Int64Load32U)
+        Int64Store::class -> build(source, ::Int64Store)
+        Int64Store8::class -> build(source, ::Int64Store8)
+        Int64Store16::class -> build(source, ::Int64Store16)
+        Int64Store32::class -> build(source, ::Int64Store32)
+        MemoryGrow::class -> MemoryGrow
+        MemorySize::class -> MemorySize
+        else -> throw IOException("Invalid memory instruction type: $model")
     }
 }
