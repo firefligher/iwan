@@ -24,7 +24,7 @@ internal object DataStrategy : DeserializationStrategy<Data> {
                 b.add(source.readInt8())
             }
 
-            Data0(e, b)
+            ActiveData(b, 0u, e)
         }
 
         1.toByte() -> {
@@ -35,7 +35,7 @@ internal object DataStrategy : DeserializationStrategy<Data> {
                 b.add(source.readInt8())
             }
 
-            Data1(b)
+            PassiveData(b)
         }
 
         2.toByte() -> {
@@ -48,7 +48,7 @@ internal object DataStrategy : DeserializationStrategy<Data> {
                 b.add(source.readInt8())
             }
 
-            Data2(x, e, b)
+            ActiveData(b, x, e)
         }
 
         else -> throw IOException("Invalid data type '$typeId'")

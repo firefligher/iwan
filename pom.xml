@@ -16,6 +16,7 @@
     </properties>
 
     <modules>
+        <module>iwan-engine</module>
         <module>iwan-io</module>
     </modules>
 

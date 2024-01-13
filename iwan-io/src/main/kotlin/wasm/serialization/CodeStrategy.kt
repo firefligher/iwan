@@ -23,17 +23,13 @@ internal object CodeStrategy : DeserializationStrategy<Code> {
         // Read locals
 
         val localsCount = source.readVarUInt32()
-        val locals = mutableMapOf<ValueType, UInt>()
+        val locals = mutableListOf<Pair<ValueType, UInt>>()
 
         for (i in 0u until localsCount) {
             val count = source.readVarUInt32()
             val type = context.deserialize<ValueType>(source)
 
-            if (type in locals) {
-                throw IOException("Local count for value type defined already")
-            }
-
-            locals[type] = count
+            locals += Pair(type, count)
         }
 
         // Read body

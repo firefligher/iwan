@@ -8,9 +8,6 @@ import dev.fir3.iwan.io.source.ByteSource
 import dev.fir3.iwan.io.wasm.models.Module
 import dev.fir3.iwan.io.wasm.serialization.*
 import dev.fir3.iwan.io.wasm.serialization.instructions.*
-import dev.fir3.iwan.io.wasm.serialization.instructions.BlockTypeInstructionStrategy
-import dev.fir3.iwan.io.wasm.serialization.instructions.CallInstructionStrategy
-import dev.fir3.iwan.io.wasm.serialization.instructions.ConstInstructionStrategy
 import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionStrategy
 import dev.fir3.iwan.io.wasm.serialization.instructions.BlockTypeStrategy
 import dev.fir3.iwan.io.wasm.serialization.valueTypes.NumberTypeStrategy
@@ -28,7 +25,7 @@ object BinaryFormat {
         b.register(BlockTypeStrategy)
         b.register(CodeStrategy)
         b.register(DataStrategy)
-        b.register(ElementSegmentStrategy)
+        b.register(ElementStrategy)
         b.register(ExportStrategy)
         b.register(ExpressionStrategy)
         b.register(FunctionTypeStrategy)

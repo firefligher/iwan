@@ -1,7 +1,13 @@
 package dev.fir3.iwan.io.wasm.models
 
-sealed interface Data
+sealed interface Data {
+    val initializers: List<Byte>
+}
 
-data class Data0(val e: Expression, val b: List<Byte>): Data
-data class Data1(val b: List<Byte>): Data
-data class Data2(val x: UInt, val e: Expression, val b: List<Byte>): Data
+data class ActiveData(
+    override val initializers: List<Byte>,
+    val memoryIndex: UInt,
+    val offset: Expression
+): Data
+
+data class PassiveData(override val initializers: List<Byte>): Data

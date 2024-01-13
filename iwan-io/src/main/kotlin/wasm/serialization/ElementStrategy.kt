@@ -7,11 +7,11 @@ import dev.fir3.iwan.io.source.ByteSource
 import dev.fir3.iwan.io.source.expectInt8
 import dev.fir3.iwan.io.source.readVarUInt32
 import dev.fir3.iwan.io.wasm.models.*
+import dev.fir3.iwan.io.wasm.models.instructions.ReferenceFunctionInstruction
 import dev.fir3.iwan.io.wasm.models.valueTypes.ReferenceType
 import java.io.IOException
 
-internal object ElementSegmentStrategy :
-    DeserializationStrategy<ElementSegment> {
+internal object ElementStrategy : DeserializationStrategy<Element> {
     @Throws(IOException::class)
     override fun deserialize(
         source: ByteSource,
@@ -26,7 +26,16 @@ internal object ElementSegmentStrategy :
                 functionIndices.add(source.readVarUInt32())
             }
 
-            ElementSegmentType0(expression, functionIndices)
+            ActiveElement(
+                ReferenceType.FunctionReference,
+                functionIndices.map { index ->
+                    Expression(
+                        listOf(ReferenceFunctionInstruction(index))
+                    )
+                },
+                0u,
+                expression
+            )
         }
 
         1u -> {
@@ -39,7 +48,14 @@ internal object ElementSegmentStrategy :
                 functionIndices.add(source.readVarUInt32())
             }
 
-            ElementSegmentType1(functionIndices)
+            PassiveElement(
+                ReferenceType.FunctionReference,
+                functionIndices.map { index ->
+                    Expression(
+                        listOf(ReferenceFunctionInstruction(index))
+                    )
+                }
+            )
         }
 
         2u -> {
@@ -53,7 +69,16 @@ internal object ElementSegmentStrategy :
                 functionIndices.add(source.readVarUInt32())
             }
 
-            ElementSegmentType2(tableIndex, expression, functionIndices)
+            ActiveElement(
+                ReferenceType.FunctionReference,
+                functionIndices.map { index ->
+                    Expression(
+                        listOf(ReferenceFunctionInstruction(index))
+                    )
+                },
+                tableIndex,
+                expression
+            )
         }
 
         3u -> {
@@ -66,7 +91,14 @@ internal object ElementSegmentStrategy :
                 functionIndices.add(source.readVarUInt32())
             }
 
-            ElementSegmentType3(functionIndices)
+            DeclarativeElement(
+                ReferenceType.FunctionReference,
+                functionIndices.map { index ->
+                    Expression(
+                        listOf(ReferenceFunctionInstruction(index))
+                    )
+                }
+            )
         }
 
         4u -> {
@@ -78,7 +110,12 @@ internal object ElementSegmentStrategy :
                 expressions.add(context.deserialize(source))
             }
 
-            ElementSegmentType4(expression, expressions)
+            ActiveElement(
+                ReferenceType.FunctionReference,
+                expressions,
+                0u,
+                expression
+            )
         }
 
         5u -> {
@@ -90,7 +127,7 @@ internal object ElementSegmentStrategy :
                 expressions.add(context.deserialize(source))
             }
 
-            ElementSegmentType5(referenceType, expressions)
+            PassiveElement(referenceType, expressions)
         }
 
         6u -> {
@@ -104,7 +141,12 @@ internal object ElementSegmentStrategy :
                 expressions.add(context.deserialize(source))
             }
 
-            ElementSegmentType6(tableIndex, expression, referenceType, expressions)
+            ActiveElement(
+                referenceType,
+                expressions,
+                tableIndex,
+                expression
+            )
         }
 
         7u -> {
@@ -116,7 +158,7 @@ internal object ElementSegmentStrategy :
                 expressions.add(context.deserialize(source))
             }
 
-            ElementSegmentType7(referenceType, expressions)
+            DeclarativeElement(referenceType, expressions)
         }
 
         else -> throw IOException("Invalid element segment typeId '$typeId'")
