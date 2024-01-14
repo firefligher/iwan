@@ -9,5 +9,5 @@ data class CallIndirectInstruction(
     val typeIndex: UInt,
     val tableIndex: UInt
 ): Instruction {
-    override val uniqueId: Int = 0x11
+    override val uniqueId: Int = UniqueIds.CALL_INDIRECT
 }

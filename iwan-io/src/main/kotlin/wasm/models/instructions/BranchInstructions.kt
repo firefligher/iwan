@@ -10,14 +10,14 @@ sealed interface BranchInstruction : Instruction
 data class UnconditionalBranchInstruction(
     val labelIndex: UInt
 ): BranchInstruction {
-    override val uniqueId: Int = 0x0C
+    override val uniqueId: Int = UniqueIds.UNCONDITIONAL_BRANCH
 }
 
 @InstructionInfo(0x0Du, BranchInstructionStrategy::class)
 data class ConditionalBranchInstruction(
     val labelIndex: UInt
 ): BranchInstruction {
-    override val uniqueId: Int = 0x0D
+    override val uniqueId: Int = UniqueIds.CONDITIONAL_BRANCH
 }
 
 @InstructionInfo(0x0Eu, BranchInstructionStrategy::class)
@@ -25,5 +25,5 @@ data class TableBranchInstruction(
     val labelIndices: List<UInt>,
     val tableIndex: UInt
 ): BranchInstruction {
-    override val uniqueId: Int = 0x0E
+    override val uniqueId: Int = 0xFF
 }

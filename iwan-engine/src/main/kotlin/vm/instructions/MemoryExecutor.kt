@@ -1,11 +1,10 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.Int32Value
+import dev.fir3.iwan.engine.models.*
 import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.engine.vm.Store
-import dev.fir3.iwan.io.wasm.models.instructions.MemoryInitInstruction
-import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
+import dev.fir3.iwan.io.wasm.models.instructions.*
 
 object MemoryExecutor : InstructionExecutionContainer {
     @InstructionExecutor(UniqueIds.MEMORY_INIT)

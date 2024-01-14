@@ -18,7 +18,7 @@ data class Float32LoadInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x2A
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x38u, MemoryInstructionStrategy::class)
@@ -34,7 +34,7 @@ data class Float64LoadInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x2B
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x39u, MemoryInstructionStrategy::class)
@@ -50,7 +50,7 @@ data class Int32LoadInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x28
+    override val uniqueId: Int = UniqueIds.INT32_LOAD
 }
 
 @InstructionInfo(0x2Cu, MemoryInstructionStrategy::class)
@@ -58,7 +58,7 @@ data class Int32Load8SInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x2C
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x2Du, MemoryInstructionStrategy::class)
@@ -66,7 +66,7 @@ data class Int32Load8UInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x2D
+    override val uniqueId: Int = UniqueIds.INT32_LOAD_8U
 }
 
 @InstructionInfo(0x2Eu, MemoryInstructionStrategy::class)
@@ -74,7 +74,7 @@ data class Int32Load16SInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x2E
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x2Fu, MemoryInstructionStrategy::class)
@@ -82,7 +82,7 @@ data class Int32Load16UInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x2F
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x36u, MemoryInstructionStrategy::class)
@@ -114,7 +114,7 @@ data class Int64LoadInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x29
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x30u, MemoryInstructionStrategy::class)
@@ -122,7 +122,7 @@ data class Int64Load8SInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x30
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x31u, MemoryInstructionStrategy::class)
@@ -130,7 +130,7 @@ data class Int64Load8UInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x31
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x32u, MemoryInstructionStrategy::class)
@@ -138,7 +138,7 @@ data class Int64Load16SInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x32
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x33u, MemoryInstructionStrategy::class)
@@ -146,7 +146,7 @@ data class Int64Load16UInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x33
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x34u, MemoryInstructionStrategy::class)
@@ -154,7 +154,7 @@ data class Int64Load32SInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x34
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x35u, MemoryInstructionStrategy::class)
@@ -162,7 +162,7 @@ data class Int64Load32UInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0x35
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x37u, MemoryInstructionStrategy::class)
@@ -199,7 +199,7 @@ data class Int64Store32Instruction(
 
 @InstructionInfo(0x40u, MemoryInstructionStrategy::class)
 object MemoryGrowInstruction : MemoryInstruction {
-    override val uniqueId: Int = 0x40
+    override val uniqueId: Int = 0xFF
 }
 
 data class MemoryInitInstruction(
@@ -210,5 +210,5 @@ data class MemoryInitInstruction(
 
 @InstructionInfo(0x3Fu, MemoryInstructionStrategy::class)
 object MemorySizeInstruction : MemoryInstruction {
-    override val uniqueId: Int = 0x3F
+    override val uniqueId: Int = 0xFF
 }

@@ -30,6 +30,32 @@ data class AuxiliaryModuleInstance(
         get() = throw UnsupportedOperationException()
 }
 
+object EmptyModuleInstance : ModuleInstance {
+    override val data: List<Int>
+        get() = throw UnsupportedOperationException()
+
+    override val elementAddresses: List<Int>
+        get() = throw UnsupportedOperationException()
+
+    override val exports: List<ExportInstance>
+        get() = throw UnsupportedOperationException()
+
+    override val functionAddresses: List<Int>
+        get() = throw UnsupportedOperationException()
+
+    override val globalAddresses: List<Int>
+        get() = throw UnsupportedOperationException()
+
+    override val memoryAddresses: List<Int>
+        get() = throw UnsupportedOperationException()
+
+    override val tableAddresses: List<Int>
+        get() = throw UnsupportedOperationException()
+
+    override val types: List<FunctionType>
+        get() = throw UnsupportedOperationException()
+}
+
 data class InstantiatedModuleInstance(
     override val data: List<Int>,
     override val elementAddresses: List<Int>,

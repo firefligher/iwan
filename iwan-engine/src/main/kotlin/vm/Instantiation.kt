@@ -5,6 +5,8 @@ import dev.fir3.iwan.engine.models.InstantiatedModuleInstance
 import dev.fir3.iwan.engine.models.ReferenceValue
 import dev.fir3.iwan.engine.models.Value
 import dev.fir3.iwan.engine.models.stack.StackFrame
+import dev.fir3.iwan.engine.models.stack.StackLabel
+import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.interpreter.Interpreter
 import dev.fir3.iwan.io.wasm.models.*
 import dev.fir3.iwan.io.wasm.models.instructions.*
@@ -13,12 +15,13 @@ object Instantiation {
     fun instantiate(module: Module): InstantiatedModuleInstance {
         val auxiliaryInstance = Allocation.allocateAuxiliaryModule(module)
 
-        Stack.push(StackFrame(arrayOf(), auxiliaryInstance))
+        Stack.push(StackFrame(arrayOf(), auxiliaryInstance, 0))
         val globalInitializers = mutableListOf<Value>()
 
         for (global in module.globals) {
-            globalInitializers += Interpreter
-                .executeAndGetValue(global.initializer)
+            globalInitializers += executeAndGetValue(
+                global.initializer.body
+            ).value
         }
 
         val elementInitializers = mutableListOf<List<ReferenceValue>>()
@@ -27,7 +30,7 @@ object Instantiation {
             val values = element
                 .initializers
                 .map { expression ->
-                    val value = Interpreter.executeAndGetValue(expression)
+                    val value = executeAndGetValue(expression.body).value
 
                     if (value !is ReferenceValue) {
                         throw IllegalStateException(
@@ -53,7 +56,7 @@ object Instantiation {
             elementInitializers
         )
 
-        Stack.push(StackFrame(arrayOf(), instance))
+        Stack.push(StackFrame(arrayOf(), instance, 0))
 
         for (index in module.elements.indices) {
             val element = module.elements[index]
@@ -61,18 +64,18 @@ object Instantiation {
             if (element is ActiveElement) {
                 val n = element.initializers.size
 
-                Interpreter.execute(element.offset)
-                Interpreter.execute(Int32ConstInstruction(0))
-                Interpreter.execute(Int32ConstInstruction(n))
-                Interpreter.execute(
-                    TableInitInstruction(element.table, index.toUInt())
+                execute(
+                    element.offset.body + listOf(
+                        Int32ConstInstruction(0),
+                        Int32ConstInstruction(n),
+                        TableInitInstruction(element.table, index.toUInt()),
+                        ElementDropInstruction(index.toUInt())
+                    )
                 )
-
-                Interpreter.execute(ElementDropInstruction(index.toUInt()))
             }
 
             if (element is DeclarativeElement) {
-                Interpreter.execute(ElementDropInstruction(index.toUInt()))
+                execute(listOf(ElementDropInstruction(index.toUInt())))
             }
         }
 
@@ -80,18 +83,30 @@ object Instantiation {
             val data = module.data[index]
 
             if (data is ActiveData) {
-                Interpreter.execute(data.offset)
-                Interpreter.execute(Int32ConstInstruction(0))
-                Interpreter.execute(
-                    Int32ConstInstruction(data.initializers.size)
+                execute(
+                    data.offset.body + listOf(
+                        Int32ConstInstruction(0),
+                        Int32ConstInstruction(data.initializers.size),
+                        MemoryInitInstruction(index.toUInt()),
+                        DataDropInstruction(index.toUInt())
+                    )
                 )
-
-                Interpreter.execute(MemoryInitInstruction(index.toUInt()))
-                Interpreter.execute(DataDropInstruction(index.toUInt()))
             }
         }
 
         Stack.pop()
         return instance
+    }
+
+    private fun execute(instructions: List<Instruction>) {
+        Stack.push(StackLabel(1, instructions, 0, false))
+        Interpreter.execute()
+    }
+
+    private fun executeAndGetValue(
+        instructions: List<Instruction>
+    ): StackValue {
+        execute(instructions)
+        return Stack.pop() as StackValue
     }
 }

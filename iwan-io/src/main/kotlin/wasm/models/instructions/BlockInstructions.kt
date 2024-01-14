@@ -14,7 +14,7 @@ data class BlockInstruction(
     override val type: BlockType,
     val body: List<Instruction>
 ) : BlockTypeInstruction {
-    override val uniqueId: Int = 0x02
+    override val uniqueId: Int = UniqueIds.BLOCK
 }
 
 @InstructionInfo(0x04u, BlockTypeInstructionStrategy::class)
@@ -23,7 +23,7 @@ data class ConditionalBlockInstruction(
     val ifBody: List<Instruction>,
     val elseBody: List<Instruction>?
 ) : BlockTypeInstruction {
-    override val uniqueId: Int = 0x04
+    override val uniqueId: Int = 0xFF
 }
 
 @InstructionInfo(0x03u, BlockTypeInstructionStrategy::class)
@@ -31,5 +31,5 @@ data class LoopInstruction(
     override val type: BlockType,
     val body: List<Instruction>
 ) : BlockTypeInstruction {
-    override val uniqueId: Int = 0x03
+    override val uniqueId: Int = UniqueIds.LOOP
 }

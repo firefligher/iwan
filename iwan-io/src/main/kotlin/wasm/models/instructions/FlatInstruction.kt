@@ -5,7 +5,7 @@ import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionInfo
 
 enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     @InstructionInfo(0x1Au, FlatInstructionStrategy::class)
-    DROP(0x1A),
+    DROP(UniqueIds.DROP),
 
     @InstructionInfo(0x8Bu, FlatInstructionStrategy::class)
     FLOAT32_ABS(0x8B),
@@ -164,10 +164,10 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     FLOAT64_TRUNC(0x9D),
 
     @InstructionInfo(0x6Au, FlatInstructionStrategy::class)
-    INT32_ADD(0x6A),
+    INT32_ADD(UniqueIds.INT32_ADD),
 
     @InstructionInfo(0x71u, FlatInstructionStrategy::class)
-    INT32_AND(0x71),
+    INT32_AND(UniqueIds.INT32_AND),
 
     @InstructionInfo(0x67u, FlatInstructionStrategy::class)
     INT32_CLZ(0x67),
@@ -179,13 +179,13 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_DIV_S(0x6D),
 
     @InstructionInfo(0x6Eu, FlatInstructionStrategy::class)
-    INT32_DIV_U(0x6E),
+    INT32_DIV_U(UniqueIds.INT32_DIV_U),
 
     @InstructionInfo(0x46u, FlatInstructionStrategy::class)
-    INT32_EQ(0x46),
+    INT32_EQ(UniqueIds.INT32_EQ),
 
     @InstructionInfo(0x45u, FlatInstructionStrategy::class)
-    INT32_EQZ(0x45),
+    INT32_EQZ(UniqueIds.INT32_EQZ),
 
     @InstructionInfo(0xC0u, FlatInstructionStrategy::class)
     INT32_EXTEND8_S(0xC0),
@@ -194,16 +194,16 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_EXTEND16_S(0xC1),
 
     @InstructionInfo(0x4Eu, FlatInstructionStrategy::class)
-    INT32_GE_S(0x4E),
+    INT32_GE_S(UniqueIds.INT32_GE_S),
 
     @InstructionInfo(0x4Fu, FlatInstructionStrategy::class)
-    INT32_GE_U(0x4F),
+    INT32_GE_U(UniqueIds.INT32_GE_U),
 
     @InstructionInfo(0x4Au, FlatInstructionStrategy::class)
-    INT32_GT_S(0x4A),
+    INT32_GT_S(UniqueIds.INT32_GT_S),
 
     @InstructionInfo(0x4Bu, FlatInstructionStrategy::class)
-    INT32_GT_U(0x4B),
+    INT32_GT_U(UniqueIds.INT32_GT_U),
 
     @InstructionInfo(0x4Cu, FlatInstructionStrategy::class)
     INT32_LE_S(0x4C),
@@ -212,19 +212,19 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_LE_U(0x4D),
 
     @InstructionInfo(0x48u, FlatInstructionStrategy::class)
-    INT32_LT_S(0x48),
+    INT32_LT_S(UniqueIds.INT32_LT_S),
 
     @InstructionInfo(0x49u, FlatInstructionStrategy::class)
-    INT32_LT_U(0x49),
+    INT32_LT_U(UniqueIds.INT32_LT_U),
 
     @InstructionInfo(0x6Cu, FlatInstructionStrategy::class)
-    INT32_MUL(0x6C),
+    INT32_MUL(UniqueIds.INT32_MUL),
 
     @InstructionInfo(0x47u, FlatInstructionStrategy::class)
-    INT32_NE(0x47),
+    INT32_NE(UniqueIds.INT32_NE),
 
     @InstructionInfo(0x72u, FlatInstructionStrategy::class)
-    INT32_OR(0x72),
+    INT32_OR(UniqueIds.INT32_OR),
 
     @InstructionInfo(0x69u, FlatInstructionStrategy::class)
     INT32_POPCNT(0x69),
@@ -254,7 +254,7 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_SHR_U(0x76),
 
     @InstructionInfo(0x6Bu, FlatInstructionStrategy::class)
-    INT32_SUB(0x6B),
+    INT32_SUB(UniqueIds.INT32_SUB),
 
     @InstructionInfo(0xA8u, FlatInstructionStrategy::class)
     INT32_TRUNC_FLOAT32_S(0xA8),
@@ -272,7 +272,7 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_WRAP_INT64(0xA7),
 
     @InstructionInfo(0x73u, FlatInstructionStrategy::class)
-    INT32_XOR(0x73),
+    INT32_XOR(UniqueIds.INT32_XOR),
 
     @InstructionInfo(0x7Cu, FlatInstructionStrategy::class)
     INT64_ADD(0x7C),
@@ -398,10 +398,10 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     REF_IS_NULL(0xD1),
 
     @InstructionInfo(0x0Fu, FlatInstructionStrategy::class)
-    RETURN(0x0F),
+    RETURN(UniqueIds.RETURN),
 
     @InstructionInfo(0x1Bu, FlatInstructionStrategy::class)
-    SELECT(0x1B),
+    SELECT(UniqueIds.SELECT),
 
     @InstructionInfo(0x00u, FlatInstructionStrategy::class)
     UNREACHABLE(0x00)

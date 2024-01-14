@@ -10,12 +10,12 @@ object StoreExecutor : InstructionExecutionContainer {
     private inline fun <
             reified TValue,
             reified TWrapperValue : NumberValue<TValue>
-    > execTemplate(
+    > execStore(
         store: Store,
         stack: Stack,
         instructionOffset: Int,
         valueSize: Int,
-        writeFn: (
+        storeFn: (
             memory: ByteArray,
             memoryOffset: Int,
             value: TValue
@@ -32,19 +32,19 @@ object StoreExecutor : InstructionExecutionContainer {
         val memoryOffset = index.value + instructionOffset
 
         if (memoryOffset + valueSize > memory.data.size) {
-            throw IllegalStateException("Write exceeds memory limit")
+            throw IllegalStateException("Store exceeds memory limit")
         }
 
-        writeFn(memory.data, memoryOffset, value.value)
+        storeFn(memory.data, memoryOffset, value.value)
     }
 
     @InstructionExecutor(UniqueIds.STORE_FLOAT32)
     @JvmStatic
-    fun execFloat32(
+    fun execStoreFloat32(
         store: Store,
         stack: Stack,
         instruction: Float32StoreInstruction
-    ) = execTemplate<Float, Float32Value>(
+    ) = execStore<Float, Float32Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -59,11 +59,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_FLOAT64)
     @JvmStatic
-    fun execFloat64(
+    fun execStoreFloat64(
         store: Store,
         stack: Stack,
         instruction: Float64StoreInstruction
-    ) = execTemplate<Double, Float64Value>(
+    ) = execStore<Double, Float64Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -82,16 +82,20 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT32)
     @JvmStatic
-    fun execInt32(
+    fun execStoreInt32(
         store: Store,
         stack: Stack,
         instruction: Int32StoreInstruction
-    ) = execTemplate<Int, Int32Value>(
+    ) = execStore<Int, Int32Value>(
         store,
         stack,
         instruction.offset.toInt(),
         4
     ) { memory, offset, value ->
+        if (offset == 65596) {
+            println()
+        }
+
         memory[offset] = value.toByte()
         memory[offset + 1] = (value shr 8).toByte()
         memory[offset + 2] = (value shr 16).toByte()
@@ -100,11 +104,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT32_8)
     @JvmStatic
-    fun execInt32_8(
+    fun execStoreInt32_8(
         store: Store,
         stack: Stack,
         instruction: Int32Store8Instruction
-    ) = execTemplate<Int, Int32Value>(
+    ) = execStore<Int, Int32Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -115,11 +119,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT32_16)
     @JvmStatic
-    fun execInt32_16(
+    fun execStoreInt32_16(
         store: Store,
         stack: Stack,
         instruction: Int32Store16Instruction
-    ) = execTemplate<Int, Int32Value>(
+    ) = execStore<Int, Int32Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -131,11 +135,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT64)
     @JvmStatic
-    fun execInt64(
+    fun execStoreInt64(
         store: Store,
         stack: Stack,
         instruction: Int64StoreInstruction
-    ) = execTemplate<Long, Int64Value>(
+    ) = execStore<Long, Int64Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -153,11 +157,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT64_8)
     @JvmStatic
-    fun execInt64_8(
+    fun execStoreInt64_8(
         store: Store,
         stack: Stack,
         instruction: Int64Store8Instruction
-    ) = execTemplate<Long, Int64Value>(
+    ) = execStore<Long, Int64Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -168,11 +172,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT64_16)
     @JvmStatic
-    fun execInt64_16(
+    fun execStoreInt64_16(
         store: Store,
         stack: Stack,
         instruction: Int64Store16Instruction
-    ) = execTemplate<Long, Int64Value>(
+    ) = execStore<Long, Int64Value>(
         store,
         stack,
         instruction.offset.toInt(),
@@ -184,11 +188,11 @@ object StoreExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.STORE_INT64_32)
     @JvmStatic
-    fun execInt64_32(
+    fun execStoreInt64_32(
         store: Store,
         stack: Stack,
         instruction: Int64Store32Instruction
-    ) = execTemplate<Long, Int64Value>(
+    ) = execStore<Long, Int64Value>(
         store,
         stack,
         instruction.offset.toInt(),

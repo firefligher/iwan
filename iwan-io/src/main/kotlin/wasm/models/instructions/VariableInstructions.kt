@@ -7,25 +7,25 @@ sealed interface VariableInstruction : Instruction
 
 @InstructionInfo(0x20u, VariableInstructionStrategy::class)
 data class LocalGetInstruction(val localIndex: UInt) : VariableInstruction {
-    override val uniqueId: Int = 0x20
+    override val uniqueId: Int = UniqueIds.LOCAL_GET
 }
 
 @InstructionInfo(0x21u, VariableInstructionStrategy::class)
 data class LocalSetInstruction(val localIndex: UInt) : VariableInstruction {
-    override val uniqueId: Int = 0x21
+    override val uniqueId: Int = UniqueIds.LOCAL_SET
 }
 
 @InstructionInfo(0x22u, VariableInstructionStrategy::class)
 data class LocalTeeInstruction(val localIndex: UInt) : VariableInstruction {
-    override val uniqueId: Int = 0x22
+    override val uniqueId: Int = UniqueIds.LOCAL_TEE
 }
 
 @InstructionInfo(0x23u, VariableInstructionStrategy::class)
 data class GlobalGetInstruction(val globalIndex: UInt) : VariableInstruction {
-    override val uniqueId: Int = 0x23
+    override val uniqueId: Int = UniqueIds.GLOBAL_GET
 }
 
 @InstructionInfo(0x24u, VariableInstructionStrategy::class)
 data class GlobalSetInstruction(val globalIndex: UInt) : VariableInstruction {
-    override val uniqueId: Int = 0x24
+    override val uniqueId: Int = UniqueIds.GLOBAL_SET
 }
