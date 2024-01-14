@@ -59,7 +59,37 @@ object Allocation {
         return address
     }
 
-    fun allocateModule(module: Module): ModuleInstance {
+    fun allocateAuxiliaryModule(module: Module): AuxiliaryModuleInstance {
+        val functionAddresses = mutableListOf<Int>()
+        val globalAddresses = mutableListOf<Int>()
+        val instance = AuxiliaryModuleInstance(
+            functionAddresses,
+            globalAddresses,
+            module.types
+        )
+
+        for (import in module.imports) {
+            // TODO: Implement resolution strategy.
+
+            when (import) {
+                is FunctionImport -> functionAddresses += -1
+                is GlobalImport -> functionAddresses += -1
+                else -> {}
+            }
+        }
+
+        for (function in module.functions) {
+            functionAddresses += allocateFunction(function, instance)
+        }
+
+        return instance
+    }
+
+    fun allocateModule(
+        module: Module,
+        globalValues: List<Value>,
+        elementValues: List<List<ReferenceValue>>
+    ): InstantiatedModuleInstance {
         val dataAddresses = mutableListOf<Int>()
         val elementAddresses = mutableListOf<Int>()
         val exports = mutableListOf<ExportInstance>()
@@ -67,7 +97,7 @@ object Allocation {
         val globalAddresses = mutableListOf<Int>()
         val memoryAddresses = mutableListOf<Int>()
         val tableAddresses = mutableListOf<Int>()
-        val instance = ModuleInstance(
+        val instance = InstantiatedModuleInstance(
             dataAddresses,
             elementAddresses,
             exports,
@@ -94,22 +124,22 @@ object Allocation {
             dataAddresses += allocateData(data.initializers)
         }
 
-        for (element in module.elements) {
-            elementAddresses += allocateElement(
-                element.type,
-                element.initializers.map { ReferenceNull }
-            )
+        for (index in module.elements.indices) {
+            val element = module.elements[index]
+            val value = elementValues[index]
+
+            elementAddresses += allocateElement(element.type, value)
         }
 
         for (function in module.functions) {
             functionAddresses += allocateFunction(function, instance)
         }
 
-        for (global in module.globals) {
-            globalAddresses += allocateGlobal(
-                global.type,
-                DefaultValues.getDefaultValue(global.type.valueType)
-            )
+        for (index in module.globals.indices) {
+            val global = module.globals[index]
+            val value = globalValues[index]
+
+            globalAddresses += allocateGlobal(global.type, value)
         }
 
         for (memoryType in module.memories) {
@@ -154,10 +184,21 @@ object Allocation {
         val address = Store.tables.size
         val instance = TableInstance(
             tableType,
-            tableType.minimum.downTo(1u).map { initializationValue }
+            tableType
+                .minimum
+                .downTo(1u)
+                .map { initializationValue }
+                .toMutableList()
         )
 
         Store.tables.add(address, instance)
         return address
+    }
+
+    fun deallocateAuxiliaryModuleInstance(instance: AuxiliaryModuleInstance) {
+        for (address in instance.functionAddresses.reversed()) {
+            if (address == -1) continue
+            Store.functions.removeAt(address)
+        }
     }
 }

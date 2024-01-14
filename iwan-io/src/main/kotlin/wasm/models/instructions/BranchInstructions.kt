@@ -9,15 +9,21 @@ sealed interface BranchInstruction : Instruction
 @InstructionInfo(0x0Cu, BranchInstructionStrategy::class)
 data class UnconditionalBranchInstruction(
     val labelIndex: UInt
-): BranchInstruction
+): BranchInstruction {
+    override val uniqueId: Int = 0x0C
+}
 
 @InstructionInfo(0x0Du, BranchInstructionStrategy::class)
 data class ConditionalBranchInstruction(
     val labelIndex: UInt
-): BranchInstruction
+): BranchInstruction {
+    override val uniqueId: Int = 0x0D
+}
 
 @InstructionInfo(0x0Eu, BranchInstructionStrategy::class)
 data class TableBranchInstruction(
     val labelIndices: List<UInt>,
     val tableIndex: UInt
-): BranchInstruction
+): BranchInstruction {
+    override val uniqueId: Int = 0x0E
+}

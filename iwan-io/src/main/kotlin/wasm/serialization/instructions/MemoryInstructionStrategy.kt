@@ -26,31 +26,69 @@ internal object MemoryInstructionStrategy :
         model: KClass<out Instruction>,
         instance: Instruction?
     ) = when (model) {
-        Float32Load::class -> build(source, ::Float32Load)
-        Float32Store::class -> build(source, ::Float32Store)
-        Float64Load::class -> build(source, ::Float64Load)
-        Float64Store::class -> build(source, ::Float64Store)
-        Int32Load::class -> build(source, ::Int32Load)
-        Int32Load8S::class -> build(source, ::Int32Load8S)
-        Int32Load8U::class -> build(source, ::Int32Load8U)
-        Int32Load16S::class -> build(source, ::Int32Load16S)
-        Int32Load16U::class -> build(source, ::Int32Load16U)
-        Int32Store::class -> build(source, ::Int32Store)
-        Int32Store8::class -> build(source, ::Int32Store8)
-        Int32Store16::class -> build(source, ::Int32Store16)
-        Int64Load::class -> build(source, ::Int64Load)
-        Int64Load8S::class -> build(source, ::Int64Load8S)
-        Int64Load8U::class -> build(source, ::Int64Load8U)
-        Int64Load16S::class -> build(source, ::Int64Load16S)
-        Int64Load16U::class -> build(source, ::Int64Load16U)
-        Int64Load32S::class -> build(source, ::Int64Load32S)
-        Int64Load32U::class -> build(source, ::Int64Load32U)
-        Int64Store::class -> build(source, ::Int64Store)
-        Int64Store8::class -> build(source, ::Int64Store8)
-        Int64Store16::class -> build(source, ::Int64Store16)
-        Int64Store32::class -> build(source, ::Int64Store32)
-        MemoryGrow::class -> MemoryGrow
-        MemorySize::class -> MemorySize
+        Float32LoadInstruction::class ->
+            build(source, ::Float32LoadInstruction)
+
+        Float32StoreInstruction::class ->
+            build(source, ::Float32StoreInstruction)
+
+        Float64LoadInstruction::class ->
+            build(source, ::Float64LoadInstruction)
+
+        Float64StoreInstruction::class ->
+            build(source, ::Float64StoreInstruction)
+
+        Int32LoadInstruction::class -> build(source, ::Int32LoadInstruction)
+        Int32Load8SInstruction::class ->
+            build(source, ::Int32Load8SInstruction)
+
+        Int32Load8UInstruction::class ->
+            build(source, ::Int32Load8UInstruction)
+
+        Int32Load16SInstruction::class ->
+            build(source, ::Int32Load16SInstruction)
+
+        Int32Load16UInstruction::class ->
+            build(source, ::Int32Load16UInstruction)
+
+        Int32StoreInstruction::class -> build(source, ::Int32StoreInstruction)
+        Int32Store8Instruction::class ->
+            build(source, ::Int32Store8Instruction)
+
+        Int32Store16Instruction::class ->
+            build(source, ::Int32Store16Instruction)
+
+        Int64LoadInstruction::class -> build(source, ::Int64LoadInstruction)
+        Int64Load8SInstruction::class ->
+            build(source, ::Int64Load8SInstruction)
+
+        Int64Load8UInstruction::class ->
+            build(source, ::Int64Load8UInstruction)
+
+        Int64Load16SInstruction::class ->
+            build(source, ::Int64Load16SInstruction)
+
+        Int64Load16UInstruction::class ->
+            build(source, ::Int64Load16UInstruction)
+
+        Int64Load32SInstruction::class ->
+            build(source, ::Int64Load32SInstruction)
+
+        Int64Load32UInstruction::class ->
+            build(source, ::Int64Load32UInstruction)
+
+        Int64StoreInstruction::class -> build(source, ::Int64StoreInstruction)
+        Int64Store8Instruction::class ->
+            build(source, ::Int64Store8Instruction)
+
+        Int64Store16Instruction::class ->
+            build(source, ::Int64Store16Instruction)
+
+        Int64Store32Instruction::class ->
+            build(source, ::Int64Store32Instruction)
+
+        MemoryGrowInstruction::class -> MemoryGrowInstruction
+        MemorySizeInstruction::class -> MemorySizeInstruction
         else -> throw IOException("Invalid memory instruction type: $model")
     }
 }

@@ -18,6 +18,7 @@
     <modules>
         <module>iwan-engine</module>
         <module>iwan-io</module>
+        <module>iwan-jvm</module>
     </modules>
 
     <build>
@@ -79,6 +80,11 @@
                 <artifactId>junit-jupiter</artifactId>
                 <version>5.10.0</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>9.6</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

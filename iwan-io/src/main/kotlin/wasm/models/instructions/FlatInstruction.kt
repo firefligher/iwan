@@ -3,406 +3,406 @@ package dev.fir3.iwan.io.wasm.models.instructions
 import dev.fir3.iwan.io.wasm.serialization.instructions.FlatInstructionStrategy
 import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionInfo
 
-enum class FlatInstruction : Instruction {
+enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     @InstructionInfo(0x1Au, FlatInstructionStrategy::class)
-    DROP,
+    DROP(0x1A),
 
     @InstructionInfo(0x8Bu, FlatInstructionStrategy::class)
-    FLOAT32_ABS,
+    FLOAT32_ABS(0x8B),
 
     @InstructionInfo(0x92u, FlatInstructionStrategy::class)
-    FLOAT32_ADD,
+    FLOAT32_ADD(0x92),
 
     @InstructionInfo(0x8Du, FlatInstructionStrategy::class)
-    FLOAT32_CEIL,
+    FLOAT32_CEIL(0x8D),
 
     @InstructionInfo(0xB2u, FlatInstructionStrategy::class)
-    FLOAT32_CONVERT_INT32_S,
+    FLOAT32_CONVERT_INT32_S(0xB2),
 
     @InstructionInfo(0xB3u, FlatInstructionStrategy::class)
-    FLOAT32_CONVERT_INT32_U,
+    FLOAT32_CONVERT_INT32_U(0xB3),
 
     @InstructionInfo(0xB4u, FlatInstructionStrategy::class)
-    FLOAT32_CONVERT_INT64_S,
+    FLOAT32_CONVERT_INT64_S(0xB4),
 
     @InstructionInfo(0xB5u, FlatInstructionStrategy::class)
-    FLOAT32_CONVERT_INT64_U,
+    FLOAT32_CONVERT_INT64_U(0xB5),
 
     @InstructionInfo(0x98u, FlatInstructionStrategy::class)
-    FLOAT32_COPYSIGN,
+    FLOAT32_COPYSIGN(0x98),
 
     @InstructionInfo(0xB6u, FlatInstructionStrategy::class)
-    FLOAT32_DEMOTE_FLOAT64,
+    FLOAT32_DEMOTE_FLOAT64(0xB6),
 
     @InstructionInfo(0x95u, FlatInstructionStrategy::class)
-    FLOAT32_DIV,
+    FLOAT32_DIV(0x95),
 
     @InstructionInfo(0x5Bu, FlatInstructionStrategy::class)
-    FLOAT32_EQ,
+    FLOAT32_EQ(0x5B),
 
     @InstructionInfo(0x8Eu, FlatInstructionStrategy::class)
-    FLOAT32_FLOOR,
+    FLOAT32_FLOOR(0x8E),
 
     @InstructionInfo(0x60u, FlatInstructionStrategy::class)
-    FLOAT32_GE,
+    FLOAT32_GE(0x60),
 
     @InstructionInfo(0x5Eu, FlatInstructionStrategy::class)
-    FLOAT32_GT,
+    FLOAT32_GT(0x5E),
 
     @InstructionInfo(0x5Fu, FlatInstructionStrategy::class)
-    FLOAT32_LE,
+    FLOAT32_LE(0x5F),
 
     @InstructionInfo(0x5Du, FlatInstructionStrategy::class)
-    FLOAT32_LT,
+    FLOAT32_LT(0x5D),
 
     @InstructionInfo(0x97u, FlatInstructionStrategy::class)
-    FLOAT32_MAX,
+    FLOAT32_MAX(0x97),
 
     @InstructionInfo(0x96u, FlatInstructionStrategy::class)
-    FLOAT32_MIN,
+    FLOAT32_MIN(0x96),
 
     @InstructionInfo(0x94u, FlatInstructionStrategy::class)
-    FLOAT32_MUL,
+    FLOAT32_MUL(0x94),
 
     @InstructionInfo(0x5Cu, FlatInstructionStrategy::class)
-    FLOAT32_NE,
+    FLOAT32_NE(0x5C),
 
     @InstructionInfo(0x90u, FlatInstructionStrategy::class)
-    FLOAT32_NEAREST,
+    FLOAT32_NEAREST(0x90),
 
     @InstructionInfo(0x8Cu, FlatInstructionStrategy::class)
-    FLOAT32_NEG,
+    FLOAT32_NEG(0x8C),
 
     @InstructionInfo(0xBEu, FlatInstructionStrategy::class)
-    FLOAT32_REINTERPRET_INT32,
+    FLOAT32_REINTERPRET_INT32(0xBE),
 
     @InstructionInfo(0x91u, FlatInstructionStrategy::class)
-    FLOAT32_SQRT,
+    FLOAT32_SQRT(0x91),
 
     @InstructionInfo(0x93u, FlatInstructionStrategy::class)
-    FLOAT32_SUB,
+    FLOAT32_SUB(0x93),
 
     @InstructionInfo(0x8Fu, FlatInstructionStrategy::class)
-    FLOAT32_TRUNC,
+    FLOAT32_TRUNC(0x8F),
 
     @InstructionInfo(0x99u, FlatInstructionStrategy::class)
-    FLOAT64_ABS,
+    FLOAT64_ABS(0x99),
 
     @InstructionInfo(0xA0u, FlatInstructionStrategy::class)
-    FLOAT64_ADD,
+    FLOAT64_ADD(0xA0),
 
     @InstructionInfo(0x9Bu, FlatInstructionStrategy::class)
-    FLOAT64_CEIL,
+    FLOAT64_CEIL(0x9B),
 
     @InstructionInfo(0xB7u, FlatInstructionStrategy::class)
-    FLOAT64_CONVERT_INT32_S,
+    FLOAT64_CONVERT_INT32_S(0xB7),
 
     @InstructionInfo(0xB8u, FlatInstructionStrategy::class)
-    FLOAT64_CONVERT_INT32_U,
+    FLOAT64_CONVERT_INT32_U(0xB8),
 
     @InstructionInfo(0xB9u, FlatInstructionStrategy::class)
-    FLOAT64_CONVERT_INT64_S,
+    FLOAT64_CONVERT_INT64_S(0xB9),
 
     @InstructionInfo(0xBAu, FlatInstructionStrategy::class)
-    FLOAT64_CONVERT_INT64_U,
+    FLOAT64_CONVERT_INT64_U(0xBA),
 
     @InstructionInfo(0xA6u, FlatInstructionStrategy::class)
-    FLOAT64_COPYSIGN,
+    FLOAT64_COPYSIGN(0xA6),
 
     @InstructionInfo(0xA3u, FlatInstructionStrategy::class)
-    FLOAT64_DIV,
+    FLOAT64_DIV(0xA3),
 
     @InstructionInfo(0x61u, FlatInstructionStrategy::class)
-    FLOAT64_EQ,
+    FLOAT64_EQ(0x61),
 
     @InstructionInfo(0x9Cu, FlatInstructionStrategy::class)
-    FLOAT64_FLOOR,
+    FLOAT64_FLOOR(0x9C),
 
     @InstructionInfo(0x66u, FlatInstructionStrategy::class)
-    FLOAT64_GE,
+    FLOAT64_GE(0x66),
 
     @InstructionInfo(0x64u, FlatInstructionStrategy::class)
-    FLOAT64_GT,
+    FLOAT64_GT(0x64),
 
     @InstructionInfo(0x65u, FlatInstructionStrategy::class)
-    FLOAT64_LE,
+    FLOAT64_LE(0x65),
 
     @InstructionInfo(0x63u, FlatInstructionStrategy::class)
-    FLOAT64_LT,
+    FLOAT64_LT(0x63),
 
     @InstructionInfo(0xA5u, FlatInstructionStrategy::class)
-    FLOAT64_MAX,
+    FLOAT64_MAX(0xA5),
 
     @InstructionInfo(0xA4u, FlatInstructionStrategy::class)
-    FLOAT64_MIN,
+    FLOAT64_MIN(0xA4),
 
     @InstructionInfo(0xA2u, FlatInstructionStrategy::class)
-    FLOAT64_MUL,
+    FLOAT64_MUL(0xA2),
 
     @InstructionInfo(0x62u, FlatInstructionStrategy::class)
-    FLOAT64_NE,
+    FLOAT64_NE(0x62),
 
     @InstructionInfo(0x9Eu, FlatInstructionStrategy::class)
-    FLOAT64_NEAREST,
+    FLOAT64_NEAREST(0x9E),
 
     @InstructionInfo(0x9Au, FlatInstructionStrategy::class)
-    FLOAT64_NEG,
+    FLOAT64_NEG(0x9A),
 
     @InstructionInfo(0xBBu, FlatInstructionStrategy::class)
-    FLOAT64_PROMOTE_FLOAT32,
+    FLOAT64_PROMOTE_FLOAT32(0xBB),
 
     @InstructionInfo(0xBFu, FlatInstructionStrategy::class)
-    FLOAT64_REINTERPRET_INT64,
+    FLOAT64_REINTERPRET_INT64(0xBF),
 
     @InstructionInfo(0x9Fu, FlatInstructionStrategy::class)
-    FLOAT64_SQRT,
+    FLOAT64_SQRT(0x9F),
 
     @InstructionInfo(0xA1u, FlatInstructionStrategy::class)
-    FLOAT64_SUB,
+    FLOAT64_SUB(0xA1),
 
     @InstructionInfo(0x9Du, FlatInstructionStrategy::class)
-    FLOAT64_TRUNC,
+    FLOAT64_TRUNC(0x9D),
 
     @InstructionInfo(0x6Au, FlatInstructionStrategy::class)
-    INT32_ADD,
+    INT32_ADD(0x6A),
 
     @InstructionInfo(0x71u, FlatInstructionStrategy::class)
-    INT32_AND,
+    INT32_AND(0x71),
 
     @InstructionInfo(0x67u, FlatInstructionStrategy::class)
-    INT32_CLZ,
+    INT32_CLZ(0x67),
 
     @InstructionInfo(0x68u, FlatInstructionStrategy::class)
-    INT32_CTZ,
+    INT32_CTZ(0x68),
 
     @InstructionInfo(0x6Du, FlatInstructionStrategy::class)
-    INT32_DIV_S,
+    INT32_DIV_S(0x6D),
 
     @InstructionInfo(0x6Eu, FlatInstructionStrategy::class)
-    INT32_DIV_U,
+    INT32_DIV_U(0x6E),
 
     @InstructionInfo(0x46u, FlatInstructionStrategy::class)
-    INT32_EQ,
+    INT32_EQ(0x46),
 
     @InstructionInfo(0x45u, FlatInstructionStrategy::class)
-    INT32_EQZ,
+    INT32_EQZ(0x45),
 
     @InstructionInfo(0xC0u, FlatInstructionStrategy::class)
-    INT32_EXTEND8_S,
+    INT32_EXTEND8_S(0xC0),
 
     @InstructionInfo(0xC1u, FlatInstructionStrategy::class)
-    INT32_EXTEND16_S,
+    INT32_EXTEND16_S(0xC1),
 
     @InstructionInfo(0x4Eu, FlatInstructionStrategy::class)
-    INT32_GE_S,
+    INT32_GE_S(0x4E),
 
     @InstructionInfo(0x4Fu, FlatInstructionStrategy::class)
-    INT32_GE_U,
+    INT32_GE_U(0x4F),
 
     @InstructionInfo(0x4Au, FlatInstructionStrategy::class)
-    INT32_GT_S,
+    INT32_GT_S(0x4A),
 
     @InstructionInfo(0x4Bu, FlatInstructionStrategy::class)
-    INT32_GT_U,
+    INT32_GT_U(0x4B),
 
     @InstructionInfo(0x4Cu, FlatInstructionStrategy::class)
-    INT32_LE_S,
+    INT32_LE_S(0x4C),
 
     @InstructionInfo(0x4Du, FlatInstructionStrategy::class)
-    INT32_LE_U,
+    INT32_LE_U(0x4D),
 
     @InstructionInfo(0x48u, FlatInstructionStrategy::class)
-    INT32_LT_S,
+    INT32_LT_S(0x48),
 
     @InstructionInfo(0x49u, FlatInstructionStrategy::class)
-    INT32_LT_U,
+    INT32_LT_U(0x49),
 
     @InstructionInfo(0x6Cu, FlatInstructionStrategy::class)
-    INT32_MUL,
+    INT32_MUL(0x6C),
 
     @InstructionInfo(0x47u, FlatInstructionStrategy::class)
-    INT32_NE,
+    INT32_NE(0x47),
 
     @InstructionInfo(0x72u, FlatInstructionStrategy::class)
-    INT32_OR,
+    INT32_OR(0x72),
 
     @InstructionInfo(0x69u, FlatInstructionStrategy::class)
-    INT32_POPCNT,
+    INT32_POPCNT(0x69),
 
     @InstructionInfo(0xBCu, FlatInstructionStrategy::class)
-    INT32_REINTERPRET_FLOAT32,
+    INT32_REINTERPRET_FLOAT32(0xBC),
 
     @InstructionInfo(0x6Fu, FlatInstructionStrategy::class)
-    INT32_REM_S,
+    INT32_REM_S(0x6F),
 
     @InstructionInfo(0x70u, FlatInstructionStrategy::class)
-    INT32_REM_U,
+    INT32_REM_U(0x70),
 
     @InstructionInfo(0x77u, FlatInstructionStrategy::class)
-    INT32_ROTL,
+    INT32_ROTL(0x77),
 
     @InstructionInfo(0x78u, FlatInstructionStrategy::class)
-    INT32_ROTR,
+    INT32_ROTR(0x78),
 
     @InstructionInfo(0x74u, FlatInstructionStrategy::class)
-    INT32_SHL,
+    INT32_SHL(0x74),
 
     @InstructionInfo(0x75u, FlatInstructionStrategy::class)
-    INT32_SHR_S,
+    INT32_SHR_S(0x75),
 
     @InstructionInfo(0x76u, FlatInstructionStrategy::class)
-    INT32_SHR_U,
+    INT32_SHR_U(0x76),
 
     @InstructionInfo(0x6Bu, FlatInstructionStrategy::class)
-    INT32_SUB,
+    INT32_SUB(0x6B),
 
     @InstructionInfo(0xA8u, FlatInstructionStrategy::class)
-    INT32_TRUNC_FLOAT32_S,
+    INT32_TRUNC_FLOAT32_S(0xA8),
 
     @InstructionInfo(0xA9u, FlatInstructionStrategy::class)
-    INT32_TRUNC_FLOAT32_U,
+    INT32_TRUNC_FLOAT32_U(0xA9),
 
     @InstructionInfo(0xAAu, FlatInstructionStrategy::class)
-    INT32_TRUNC_FLOAT64_S,
+    INT32_TRUNC_FLOAT64_S(0xAA),
 
     @InstructionInfo(0xABu, FlatInstructionStrategy::class)
-    INT32_TRUNC_FLOAT64_U,
+    INT32_TRUNC_FLOAT64_U(0xAB),
 
     @InstructionInfo(0xA7u, FlatInstructionStrategy::class)
-    INT32_WRAP_INT64,
+    INT32_WRAP_INT64(0xA7),
 
     @InstructionInfo(0x73u, FlatInstructionStrategy::class)
-    INT32_XOR,
+    INT32_XOR(0x73),
 
     @InstructionInfo(0x7Cu, FlatInstructionStrategy::class)
-    INT64_ADD,
+    INT64_ADD(0x7C),
 
     @InstructionInfo(0x83u, FlatInstructionStrategy::class)
-    INT64_AND,
+    INT64_AND(0x83),
 
     @InstructionInfo(0x79u, FlatInstructionStrategy::class)
-    INT64_CLZ,
+    INT64_CLZ(0x79),
 
     @InstructionInfo(0x7Au, FlatInstructionStrategy::class)
-    INT64_CTZ,
+    INT64_CTZ(0x7A),
 
     @InstructionInfo(0x7Fu, FlatInstructionStrategy::class)
-    INT64_DIV_S,
+    INT64_DIV_S(0x7F),
 
     @InstructionInfo(0x80u, FlatInstructionStrategy::class)
-    INT64_DIV_U,
+    INT64_DIV_U(0x80),
 
     @InstructionInfo(0x51u, FlatInstructionStrategy::class)
-    INT64_EQ,
+    INT64_EQ(0x51),
 
     @InstructionInfo(0x50u, FlatInstructionStrategy::class)
-    INT64_EQZ,
+    INT64_EQZ(0x50),
 
     @InstructionInfo(0xC2u, FlatInstructionStrategy::class)
-    INT64_EXTEND8_S,
+    INT64_EXTEND8_S(0xC2),
 
     @InstructionInfo(0xC3u, FlatInstructionStrategy::class)
-    INT64_EXTEND16_S,
+    INT64_EXTEND16_S(0xC3),
 
     @InstructionInfo(0xC4u, FlatInstructionStrategy::class)
-    INT64_EXTEND32_S,
+    INT64_EXTEND32_S(0xC4),
 
     @InstructionInfo(0xACu, FlatInstructionStrategy::class)
-    INT64_EXTEND_INT32_S,
+    INT64_EXTEND_INT32_S(0xAC),
 
     @InstructionInfo(0xADu, FlatInstructionStrategy::class)
-    INT64_EXTEND_INT32_U,
+    INT64_EXTEND_INT32_U(0xAD),
 
     @InstructionInfo(0x59u, FlatInstructionStrategy::class)
-    INT64_GE_S,
+    INT64_GE_S(0x59),
 
     @InstructionInfo(0x5Au, FlatInstructionStrategy::class)
-    INT64_GE_U,
+    INT64_GE_U(0x5A),
 
     @InstructionInfo(0x55u, FlatInstructionStrategy::class)
-    INT64_GT_S,
+    INT64_GT_S(0x55),
 
     @InstructionInfo(0x56u, FlatInstructionStrategy::class)
-    INT64_GT_U,
+    INT64_GT_U(0x56),
 
     @InstructionInfo(0x57u, FlatInstructionStrategy::class)
-    INT64_LE_S,
+    INT64_LE_S(0x57),
 
     @InstructionInfo(0x58u, FlatInstructionStrategy::class)
-    INT64_LE_U,
+    INT64_LE_U(0x58),
 
     @InstructionInfo(0x53u, FlatInstructionStrategy::class)
-    INT64_LT_S,
+    INT64_LT_S(0x53),
 
     @InstructionInfo(0x54u, FlatInstructionStrategy::class)
-    INT64_LT_U,
+    INT64_LT_U(0x54),
 
     @InstructionInfo(0x7Eu, FlatInstructionStrategy::class)
-    INT64_MUL,
+    INT64_MUL(0x7E),
 
     @InstructionInfo(0x52u, FlatInstructionStrategy::class)
-    INT64_NE,
+    INT64_NE(0x52),
 
     @InstructionInfo(0x84u, FlatInstructionStrategy::class)
-    INT64_OR,
+    INT64_OR(0x84),
 
     @InstructionInfo(0x7Bu, FlatInstructionStrategy::class)
-    INT64_POPCNT,
+    INT64_POPCNT(0x7B),
 
     @InstructionInfo(0xBDu, FlatInstructionStrategy::class)
-    INT64_REINTERPRET_FLOAT64,
+    INT64_REINTERPRET_FLOAT64(0xBD),
 
     @InstructionInfo(0x81u, FlatInstructionStrategy::class)
-    INT64_REM_S,
+    INT64_REM_S(0x81),
 
     @InstructionInfo(0x82u, FlatInstructionStrategy::class)
-    INT64_REM_U,
+    INT64_REM_U(0x82),
 
     @InstructionInfo(0x89u, FlatInstructionStrategy::class)
-    INT64_ROTL,
+    INT64_ROTL(0x89),
 
     @InstructionInfo(0x8Au, FlatInstructionStrategy::class)
-    INT64_ROTR,
+    INT64_ROTR(0x8A),
 
     @InstructionInfo(0x86u, FlatInstructionStrategy::class)
-    INT64_SHL,
+    INT64_SHL(0x86),
 
     @InstructionInfo(0x87u, FlatInstructionStrategy::class)
-    INT64_SHR_S,
+    INT64_SHR_S(0x87),
 
     @InstructionInfo(0x88u, FlatInstructionStrategy::class)
-    INT64_SHR_U,
+    INT64_SHR_U(0x88),
 
     @InstructionInfo(0x7Du, FlatInstructionStrategy::class)
-    INT64_SUB,
+    INT64_SUB(0x70),
 
     @InstructionInfo(0xAEu, FlatInstructionStrategy::class)
-    INT64_TRUNC_FLOAT32_S,
+    INT64_TRUNC_FLOAT32_S(0xAE),
 
     @InstructionInfo(0xAFu, FlatInstructionStrategy::class)
-    INT64_TRUNC_FLOAT32_U,
+    INT64_TRUNC_FLOAT32_U(0xAF),
 
     @InstructionInfo(0xB0u, FlatInstructionStrategy::class)
-    INT64_TRUNC_FLOAT64_S,
+    INT64_TRUNC_FLOAT64_S(0xB0),
 
     @InstructionInfo(0xB1u, FlatInstructionStrategy::class)
-    INT64_TRUNC_FLOAT64_U,
+    INT64_TRUNC_FLOAT64_U(0xB1),
 
     @InstructionInfo(0x85u, FlatInstructionStrategy::class)
-    INT64_XOR,
+    INT64_XOR(0x85),
 
     @InstructionInfo(0x01u, FlatInstructionStrategy::class)
-    NOP,
+    NOP(0x10023),
 
     @InstructionInfo(0xD1u, FlatInstructionStrategy::class)
-    REF_IS_NULL,
+    REF_IS_NULL(0xD1),
 
     @InstructionInfo(0x0Fu, FlatInstructionStrategy::class)
-    RETURN,
+    RETURN(0x0F),
 
     @InstructionInfo(0x1Bu, FlatInstructionStrategy::class)
-    SELECT,
+    SELECT(0x1B),
 
     @InstructionInfo(0x00u, FlatInstructionStrategy::class)
-    UNREACHABLE
+    UNREACHABLE(0x00)
 }

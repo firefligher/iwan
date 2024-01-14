@@ -5,4 +5,6 @@ import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionIds
 import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionInfo
 
 @InstructionInfo(0x10u, CallInstructionStrategy::class)
-data class CallInstruction(val functionIndex: UInt): Instruction
+data class CallInstruction(val functionIndex: UInt): Instruction {
+    override val uniqueId: Int = 0x10
+}

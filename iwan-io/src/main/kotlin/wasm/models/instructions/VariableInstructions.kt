@@ -6,16 +6,26 @@ import dev.fir3.iwan.io.wasm.serialization.instructions.VariableInstructionStrat
 sealed interface VariableInstruction : Instruction
 
 @InstructionInfo(0x20u, VariableInstructionStrategy::class)
-data class LocalGetInstruction(val localIndex: UInt) : VariableInstruction
+data class LocalGetInstruction(val localIndex: UInt) : VariableInstruction {
+    override val uniqueId: Int = 0x20
+}
 
 @InstructionInfo(0x21u, VariableInstructionStrategy::class)
-data class LocalSetInstruction(val localIndex: UInt) : VariableInstruction
+data class LocalSetInstruction(val localIndex: UInt) : VariableInstruction {
+    override val uniqueId: Int = 0x21
+}
 
 @InstructionInfo(0x22u, VariableInstructionStrategy::class)
-data class LocalTeeInstruction(val localIndex: UInt) : VariableInstruction
+data class LocalTeeInstruction(val localIndex: UInt) : VariableInstruction {
+    override val uniqueId: Int = 0x22
+}
 
 @InstructionInfo(0x23u, VariableInstructionStrategy::class)
-data class GlobalGetInstruction(val globalIndex: UInt) : VariableInstruction
+data class GlobalGetInstruction(val globalIndex: UInt) : VariableInstruction {
+    override val uniqueId: Int = 0x23
+}
 
 @InstructionInfo(0x24u, VariableInstructionStrategy::class)
-data class GlobalSetInstruction(val globalIndex: UInt) : VariableInstruction
+data class GlobalSetInstruction(val globalIndex: UInt) : VariableInstruction {
+    override val uniqueId: Int = 0x24
+}

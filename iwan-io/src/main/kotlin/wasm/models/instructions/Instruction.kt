@@ -1,3 +1,5 @@
 package dev.fir3.iwan.io.wasm.models.instructions
 
-sealed interface Instruction
+sealed interface Instruction {
+    val uniqueId: Int
+}

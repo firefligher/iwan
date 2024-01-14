@@ -4,5 +4,5 @@ import dev.fir3.iwan.io.wasm.models.TableType
 
 data class TableInstance(
     val type: TableType,
-    val elements: List<ReferenceValue>
+    val elements: MutableList<ReferenceValue>
 )

@@ -13,17 +13,23 @@ sealed interface BlockTypeInstruction : Instruction {
 data class BlockInstruction(
     override val type: BlockType,
     val body: List<Instruction>
-) : BlockTypeInstruction
+) : BlockTypeInstruction {
+    override val uniqueId: Int = 0x02
+}
 
 @InstructionInfo(0x04u, BlockTypeInstructionStrategy::class)
 data class ConditionalBlockInstruction(
     override val type: BlockType,
     val ifBody: List<Instruction>,
     val elseBody: List<Instruction>?
-) : BlockTypeInstruction
+) : BlockTypeInstruction {
+    override val uniqueId: Int = 0x04
+}
 
 @InstructionInfo(0x03u, BlockTypeInstructionStrategy::class)
 data class LoopInstruction(
     override val type: BlockType,
     val body: List<Instruction>
-) : BlockTypeInstruction
+) : BlockTypeInstruction {
+    override val uniqueId: Int = 0x03
+}

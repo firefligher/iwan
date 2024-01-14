@@ -8,4 +8,6 @@ import dev.fir3.iwan.io.wasm.serialization.instructions.InstructionInfo
 data class CallIndirectInstruction(
     val typeIndex: UInt,
     val tableIndex: UInt
-): Instruction
+): Instruction {
+    override val uniqueId: Int = 0x11
+}

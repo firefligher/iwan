@@ -6,4 +6,6 @@ import dev.fir3.iwan.io.wasm.serialization.instructions.ReferenceFunctionInstruc
 @InstructionInfo(0xD2u, ReferenceFunctionInstructionStrategy::class)
 data class ReferenceFunctionInstruction(
     val functionIndex: UInt
-): Instruction
+): Instruction {
+    override val uniqueId: Int = UniqueIds.REFERENCE_FUNCTION
+}
