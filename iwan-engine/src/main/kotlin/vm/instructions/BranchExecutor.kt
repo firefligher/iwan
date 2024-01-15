@@ -5,6 +5,7 @@ import dev.fir3.iwan.engine.models.stack.StackLabel
 import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.ConditionalBranchInstruction
+import dev.fir3.iwan.io.wasm.models.instructions.TableBranchInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UnconditionalBranchInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
 
@@ -47,6 +48,23 @@ object BranchExecutor : InstructionExecutionContainer {
     ) {
         val value = ((stack.pop() as StackValue).value as Int32Value).value
         if (value != 0) execJump(stack, instruction.labelIndex.toInt())
+    }
+
+    @InstructionExecutor(UniqueIds.TABLE_BRANCH)
+    @JvmStatic
+    fun execTable(stack: Stack, instruction: TableBranchInstruction) {
+        val index = ((stack.pop() as StackValue).value as Int32Value).value
+
+        if (index < instruction.labelIndices.size) {
+            execJump(stack, instruction.labelIndices[index].toInt())
+        } else {
+            execJump(
+                stack,
+                instruction
+                    .labelIndices[instruction.tableIndex.toInt()]
+                    .toInt()
+            )
+        }
     }
 
     @InstructionExecutor(UniqueIds.UNCONDITIONAL_BRANCH)

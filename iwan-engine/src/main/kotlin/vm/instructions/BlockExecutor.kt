@@ -1,6 +1,8 @@
 package dev.fir3.iwan.engine.vm.instructions
 
+import dev.fir3.iwan.engine.models.Int32Value
 import dev.fir3.iwan.engine.models.stack.StackLabel
+import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.*
 import dev.fir3.iwan.io.wasm.models.instructions.blockTypes.EmptyBlockType
@@ -51,6 +53,23 @@ object BlockExecutor : InstructionExecutionContainer {
     @JvmStatic
     fun execBlock(stack: Stack, instruction: BlockInstruction) =
         execBlockType(stack, instruction, instruction.body, false)
+
+    @InstructionExecutor(UniqueIds.CONDITIONAL_BLOCK)
+    @JvmStatic
+    fun execConditional(
+        stack: Stack,
+        instruction: ConditionalBlockInstruction
+    ) {
+        val condition = ((stack.pop() as StackValue).value as Int32Value).value
+
+        if (condition != 0) {
+            execBlockType(stack, instruction, instruction.ifBody, false)
+        } else {
+            instruction.elseBody?.let { body ->
+                execBlockType(stack, instruction, body, false)
+            }
+        }
+    }
 
     @InstructionExecutor(UniqueIds.LOOP)
     @JvmStatic

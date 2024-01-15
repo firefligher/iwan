@@ -1,6 +1,7 @@
 package dev.fir3.iwan.engine.vm
 
 import dev.fir3.iwan.engine.models.EmptyModuleInstance
+import dev.fir3.iwan.engine.models.HostFunctionInstance
 import dev.fir3.iwan.engine.models.Value
 import dev.fir3.iwan.engine.models.WasmFunctionInstance
 import dev.fir3.iwan.engine.models.stack.StackFrame
@@ -23,9 +24,32 @@ object Invocation {
     }
 
     internal fun invokeFunction(functionAddress: Int): List<Value> {
-        val functionInstance = Store.functions[functionAddress]
-        require(functionInstance is WasmFunctionInstance)
+        return when (val instance = Store.functions[functionAddress]) {
+            is HostFunctionInstance -> invokeHostFunction(instance)
+            is WasmFunctionInstance -> invokeWasmFunction(instance)
+        }
+    }
 
+    private fun invokeHostFunction(
+        functionInstance: HostFunctionInstance
+    ): List<Value> {
+        val parameters = mutableListOf<Value>()
+
+        functionInstance
+            .type
+            .parameterTypes
+            .size
+            .downTo(1)
+            .forEach { _ ->
+                parameters.add((Stack.pop() as StackValue).value)
+            }
+
+        return functionInstance.invoke(parameters)
+    }
+
+    private fun invokeWasmFunction(
+        functionInstance: WasmFunctionInstance
+    ): List<Value> {
         val functionType = functionInstance.type
         val functionCode = functionInstance.code
         val locals = mutableListOf<Value>()
@@ -40,14 +64,13 @@ object Invocation {
             )
         }
 
-        Stack.push(
-            StackFrame(
-                locals.toTypedArray(),
-                functionInstance.module,
-                functionType.resultTypes.size
-            )
+        val frame = StackFrame(
+            locals.toTypedArray(),
+            functionInstance.module,
+            functionType.resultTypes.size
         )
 
+        Stack.push(frame)
         Stack.push(
             StackLabel(
                 functionType.resultTypes.size,
@@ -63,7 +86,10 @@ object Invocation {
             (Stack.pop() as StackValue).value
         }
 
-        Stack.pop()
+        if (frame === Stack.currentFrame) {
+            Stack.pop()
+        }
+
         return results
     }
 }

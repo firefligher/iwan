@@ -25,5 +25,5 @@ data class TableBranchInstruction(
     val labelIndices: List<UInt>,
     val tableIndex: UInt
 ): BranchInstruction {
-    override val uniqueId: Int = 0xFF
+    override val uniqueId: Int = UniqueIds.TABLE_BRANCH
 }

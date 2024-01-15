@@ -245,10 +245,10 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_ROTR(0x78),
 
     @InstructionInfo(0x74u, FlatInstructionStrategy::class)
-    INT32_SHL(0x74),
+    INT32_SHL(UniqueIds.INT32_SHL),
 
     @InstructionInfo(0x75u, FlatInstructionStrategy::class)
-    INT32_SHR_S(0x75),
+    INT32_SHR_S(UniqueIds.INT32_SHR_S),
 
     @InstructionInfo(0x76u, FlatInstructionStrategy::class)
     INT32_SHR_U(0x76),
@@ -311,7 +311,7 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT64_EXTEND_INT32_S(0xAC),
 
     @InstructionInfo(0xADu, FlatInstructionStrategy::class)
-    INT64_EXTEND_INT32_U(0xAD),
+    INT64_EXTEND_INT32_U(UniqueIds.INT64_EXTEND_INT32_U),
 
     @InstructionInfo(0x59u, FlatInstructionStrategy::class)
     INT64_GE_S(0x59),
@@ -338,7 +338,7 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT64_LT_U(0x54),
 
     @InstructionInfo(0x7Eu, FlatInstructionStrategy::class)
-    INT64_MUL(0x7E),
+    INT64_MUL(UniqueIds.INT64_MUL),
 
     @InstructionInfo(0x52u, FlatInstructionStrategy::class)
     INT64_NE(0x52),

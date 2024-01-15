@@ -55,4 +55,10 @@ object UniqueIds {
     const val INT32_OR = 48
     const val CALL_INDIRECT = 49
     const val INT32_GT_U = 50
+    const val INT32_SHL = 51
+    const val INT32_SHR_S = 52
+    const val CONDITIONAL_BLOCK = 53
+    const val INT64_EXTEND_INT32_U = 54
+    const val INT64_MUL = 55
+    const val TABLE_BRANCH = 56
 }

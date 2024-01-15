@@ -23,7 +23,7 @@ data class ConditionalBlockInstruction(
     val ifBody: List<Instruction>,
     val elseBody: List<Instruction>?
 ) : BlockTypeInstruction {
-    override val uniqueId: Int = 0xFF
+    override val uniqueId: Int = UniqueIds.CONDITIONAL_BLOCK
 }
 
 @InstructionInfo(0x03u, BlockTypeInstructionStrategy::class)

@@ -1,6 +1,9 @@
 package dev.fir3.iwan.engine.vm.instructions
 
 import dev.fir3.iwan.engine.models.Int32Value
+import dev.fir3.iwan.engine.models.Int64Value
+import dev.fir3.iwan.engine.models.stack.StackElement
+import dev.fir3.iwan.engine.models.stack.StackFrame
 import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
@@ -25,6 +28,17 @@ object FlatExecutor : InstructionExecutionContainer {
         val result = opFn(x.value)
 
         stack.push(StackValue(Int32Value(result)))
+    }
+
+    private inline fun execInt64Binary(
+        stack: Stack,
+        opFn: (a: Long, b: Long) -> Long
+    ) {
+        val b = (stack.pop() as StackValue).value as Int64Value
+        val a = (stack.pop() as StackValue).value as Int64Value
+        val result = opFn(a.value, b.value)
+
+        stack.push(StackValue(Int64Value(result)))
     }
 
     @InstructionExecutor(UniqueIds.DROP)
@@ -118,6 +132,18 @@ object FlatExecutor : InstructionExecutionContainer {
     @JvmStatic
     fun execInt32Or(stack: Stack) = execInt32Binary(stack) { a, b -> a or b }
 
+    @InstructionExecutor(UniqueIds.INT32_SHL)
+    @JvmStatic
+    fun execInt32Shl(stack: Stack) = execInt32Binary(stack) { a, b ->
+        a shl (b and 0x1F)
+    }
+
+    @InstructionExecutor(UniqueIds.INT32_SHR_S)
+    @JvmStatic
+    fun execInt32ShrS(stack: Stack) = execInt32Binary(stack) { a, b ->
+        a shr (b and 0x1F)
+    }
+
     @InstructionExecutor(UniqueIds.INT32_SUB)
     @JvmStatic
     fun execInt32Sub(stack: Stack) = execInt32Binary(stack) { a, b -> a - b }
@@ -125,6 +151,19 @@ object FlatExecutor : InstructionExecutionContainer {
     @InstructionExecutor(UniqueIds.INT32_XOR)
     @JvmStatic
     fun execInt32Xor(stack: Stack) = execInt32Binary(stack) { a, b -> a xor b }
+
+    @InstructionExecutor(UniqueIds.INT64_EXTEND_INT32_U)
+    @JvmStatic
+    fun execInt64ExtendInt32U(stack: Stack) {
+        val value = ((Stack.pop() as StackValue).value as Int32Value).value
+        val extendedValue = value.toLong()
+
+        Stack.push(StackValue(Int64Value(extendedValue)))
+    }
+
+    @InstructionExecutor(UniqueIds.INT64_MUL)
+    @JvmStatic
+    fun execInt64Mul(stack: Stack) = execInt64Binary(stack) { a, b -> a * b }
 
     @InstructionExecutor(UniqueIds.RETURN)
     @JvmStatic
@@ -135,9 +174,11 @@ object FlatExecutor : InstructionExecutionContainer {
             .downTo(1)
             .map { stack.pop() as StackValue }
 
+        var poppedValue: StackElement
+
         do {
-            stack.pop()
-        } while (stack.currentFrame == originalCurrentFrame)
+            poppedValue = stack.pop()
+        } while (poppedValue !is StackFrame)
 
         returnValues.reversed().forEach(Stack::push)
     }

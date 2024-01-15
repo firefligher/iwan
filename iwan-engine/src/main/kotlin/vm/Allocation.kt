@@ -1,5 +1,6 @@
 package dev.fir3.iwan.engine.vm
 
+import dev.fir3.iwan.engine.hacky.FakeHostFunctionInstance
 import dev.fir3.iwan.engine.models.*
 import dev.fir3.iwan.io.wasm.models.*
 import dev.fir3.iwan.io.wasm.models.Function
@@ -72,7 +73,16 @@ object Allocation {
             // TODO: Implement resolution strategy.
 
             when (import) {
-                is FunctionImport -> functionAddresses += -1
+                is FunctionImport -> {
+                    functionAddresses += Store.functions.size
+                    Store.functions.add(
+                        FakeHostFunctionInstance(
+                            module.types[import.typeIndex.toInt()],
+                            import.module,
+                            import.name
+                        )
+                    )
+                }
                 is GlobalImport -> functionAddresses += -1
                 else -> {}
             }
@@ -112,7 +122,18 @@ object Allocation {
             // TODO: Implement resolution strategy.
 
             when (import) {
-                is FunctionImport -> functionAddresses += -1
+                is FunctionImport -> {
+                    // Everything is fake.
+
+                    functionAddresses += Store.functions.size
+                    Store.functions.add(
+                        FakeHostFunctionInstance(
+                            module.types[import.typeIndex.toInt()],
+                            import.module,
+                            import.name
+                        )
+                    )
+                }
                 is GlobalImport -> functionAddresses += -1
                 is MemoryImport -> memoryAddresses += -1
                 is TableImport -> tableAddresses += -1

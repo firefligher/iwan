@@ -21,7 +21,6 @@ object Interpreter {
 
             val instruction = instructions[nextInstruction]
             label.instructionIndex++
-
             println(instruction)
             _jumpClass.evaluate(instruction.uniqueId, instruction)
         }
