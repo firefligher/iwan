@@ -5,7 +5,7 @@ import dev.fir3.iwan.engine.models.stack.StackFrame
 import dev.fir3.iwan.engine.models.stack.StackLabel
 
 object Stack {
-    private val _stack: MutableList<StackElement> = mutableListOf()
+    val _stack: MutableList<StackElement> = mutableListOf()
 
     val currentFrame: StackFrame get() = _stack
         .reversed()

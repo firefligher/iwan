@@ -53,7 +53,7 @@ object CallExecutor : InstructionExecutionContainer {
 
         val reference = table[index]
 
-        if (reference == ReferenceNull) {
+        if (reference is ReferenceNull) {
             throw IllegalStateException("Null pointer indirection")
         }
 

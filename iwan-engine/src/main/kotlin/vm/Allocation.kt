@@ -168,7 +168,10 @@ object Allocation {
         }
 
         for (tableType in module.tables) {
-            tableAddresses += allocateTable(tableType, ReferenceNull)
+            tableAddresses += allocateTable(
+                tableType,
+                ReferenceNull(tableType.elementType)
+            )
         }
 
         for (export in module.exports) {

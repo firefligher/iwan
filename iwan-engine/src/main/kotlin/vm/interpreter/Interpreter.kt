@@ -4,6 +4,8 @@ import dev.fir3.iwan.engine.models.stack.StackLabel
 import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.CallInstruction
+import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
+import java.lang.UnsupportedOperationException
 
 object Interpreter {
     private val _jumpClass = JumpClassFactory.create()
@@ -21,8 +23,17 @@ object Interpreter {
 
             val instruction = instructions[nextInstruction]
             label.instructionIndex++
-            println(instruction)
-            _jumpClass.evaluate(instruction.uniqueId, instruction)
+
+            if (instruction.uniqueId == UniqueIds.RETURN) {
+                break
+            }
+
+            try {
+                _jumpClass.evaluate(instruction.uniqueId, instruction)
+            } catch (ex: UnsupportedOperationException) {
+                println(instruction)
+                throw ex
+            }
         }
     }
 

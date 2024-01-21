@@ -23,10 +23,22 @@ object Invocation {
         return result
     }
 
+    private var invoc3 = 0
+
     internal fun invokeFunction(functionAddress: Int): List<Value> {
         return when (val instance = Store.functions[functionAddress]) {
-            is HostFunctionInstance -> invokeHostFunction(instance)
-            is WasmFunctionInstance -> invokeWasmFunction(instance)
+            is HostFunctionInstance -> {
+                println("Invoking Host function ${functionAddress}")
+                val r = invokeHostFunction(instance)
+                println("Invoked function ${functionAddress}")
+                r
+            }
+            is WasmFunctionInstance -> {
+                //println("Invoking WASM function ${functionAddress}")
+                val r = invokeWasmFunction(instance)
+                //println("Invoked function ${functionAddress}")
+                r
+            }
         }
     }
 
@@ -82,11 +94,13 @@ object Invocation {
 
         Interpreter.execute()
 
-        val results = functionInstance.type.resultTypes.map {
-            (Stack.pop() as StackValue).value
+        val results = functionInstance.type.resultTypes.map { type ->
+            val value = (Stack.pop() as StackValue).value
+            require(value.type == type)
+            value
         }
 
-        if (frame === Stack.currentFrame) {
+        while (frame === Stack.currentFrame) {
             Stack.pop()
         }
 

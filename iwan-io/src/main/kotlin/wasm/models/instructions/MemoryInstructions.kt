@@ -58,7 +58,7 @@ data class Int32Load8SInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0xFF
+    override val uniqueId: Int = UniqueIds.INT32_LOAD_8S
 }
 
 @InstructionInfo(0x2Du, MemoryInstructionStrategy::class)
@@ -114,7 +114,7 @@ data class Int64LoadInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0xFF
+    override val uniqueId: Int = UniqueIds.INT64_LOAD
 }
 
 @InstructionInfo(0x30u, MemoryInstructionStrategy::class)
@@ -162,7 +162,7 @@ data class Int64Load32UInstruction(
     override val align: UInt,
     override val offset: UInt
 ) : AlignedMemoryInstruction {
-    override val uniqueId: Int = 0xFF
+    override val uniqueId: Int = UniqueIds.INT64_LOAD_32U
 }
 
 @InstructionInfo(0x37u, MemoryInstructionStrategy::class)

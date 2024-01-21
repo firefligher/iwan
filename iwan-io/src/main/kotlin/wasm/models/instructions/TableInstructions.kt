@@ -10,20 +10,20 @@ data class TableCopyInstruction(
     val tableIndex1: UInt,
     val tableIndex2: UInt
 ): TableInstruction {
-    override val uniqueId: Int = 0xFC14
+    override val uniqueId: Int = 0xFF
 }
 
 
 data class TableFillInstruction(val tableIndex: UInt): TableInstruction {
-    override val uniqueId: Int = 0xFC17
+    override val uniqueId: Int = 0xFF
 }
 
 data class TableGetInstruction(val tableIndex: UInt): TableInstruction {
-    override val uniqueId: Int = 0x25
+    override val uniqueId: Int = 0xFF
 }
 
 data class TableGrowInstruction(val tableIndex: UInt): TableInstruction {
-    override val uniqueId: Int = 0xFC15
+    override val uniqueId: Int = 0xFF
 }
 
 data class TableInitInstruction(
@@ -38,6 +38,6 @@ data class TableSetInstruction(val tableIndex: UInt): TableInstruction {
 }
 
 data class TableSizeInstruction(val tableIndex: UInt): TableInstruction {
-    override val uniqueId: Int = 0xFC16
+    override val uniqueId: Int = 0xFF
 }
 

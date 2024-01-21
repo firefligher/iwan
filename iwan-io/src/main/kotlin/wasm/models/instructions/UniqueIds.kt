@@ -61,4 +61,25 @@ object UniqueIds {
     const val INT64_EXTEND_INT32_U = 54
     const val INT64_MUL = 55
     const val TABLE_BRANCH = 56
+    const val INT64_EXTEND_INT32_S = 57
+    const val INT64_EQZ = 58
+    const val INT64_LOAD = 59
+    const val INT64_NE = 60
+    const val INT64_ADD = 61
+    const val INT64_LE_S = 62
+    const val INT32_LE_U = 63
+    const val INT64_GE_S = 64
+    const val INT32_SHR_U = 65
+    const val INT32_LOAD_8S = 66
+    const val INT64_SHR_U = 67
+    const val INT64_LT_U = 68
+    const val INT64_AND = 69
+    const val INT64_SHL = 70
+    const val INT64_OR = 71
+    const val INT64_XOR = 72
+    const val INT64_SUB = 73
+    const val INT64_EQ = 74
+    const val INT32_WRAP_INT64 = 75
+    const val INT64_LOAD_32U = 76
+    const val INT64_GT_U = 77
 }

@@ -1,13 +1,12 @@
 package dev.fir3.iwan.engine.vm.instructions
 
 import dev.fir3.iwan.engine.models.Int32Value
+import dev.fir3.iwan.engine.models.Int64Value
 import dev.fir3.iwan.engine.models.NumberValue
 import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.engine.vm.Store
-import dev.fir3.iwan.io.wasm.models.instructions.Int32Load8UInstruction
-import dev.fir3.iwan.io.wasm.models.instructions.Int32LoadInstruction
-import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
+import dev.fir3.iwan.io.wasm.models.instructions.*
 
 object LoadExecutor : InstructionExecutionContainer {
     private inline fun <
@@ -59,6 +58,21 @@ object LoadExecutor : InstructionExecutionContainer {
         Int32Value(value)
     }
 
+    @InstructionExecutor(UniqueIds.INT32_LOAD_8S)
+    @JvmStatic
+    fun execLoadInt32_8s(
+        store: Store,
+        stack: Stack,
+        instruction: Int32Load8SInstruction
+    ) = execLoad(
+        store,
+        stack,
+        instruction.offset.toInt(),
+        1
+    ) { memory, offset ->
+        Int32Value(memory[offset].toInt())
+    }
+
     @InstructionExecutor(UniqueIds.INT32_LOAD_8U)
     @JvmStatic
     fun execLoadInt32_8u(
@@ -72,5 +86,49 @@ object LoadExecutor : InstructionExecutionContainer {
         1
     ) { memory, offset ->
         Int32Value(memory[offset].toUByte().toInt())
+    }
+
+    @InstructionExecutor(UniqueIds.INT64_LOAD)
+    @JvmStatic
+    fun execLoadInt64(
+        store: Store,
+        stack: Stack,
+        instruction: Int64LoadInstruction
+    ) = execLoad(
+        store,
+        stack,
+        instruction.offset.toInt(),
+        8
+    ) { memory, offset ->
+        val value = memory[offset].toUByte().toLong() or
+                (memory[offset + 1].toUByte().toLong() shl 8) or
+                (memory[offset + 2].toUByte().toLong() shl 16) or
+                (memory[offset + 3].toUByte().toLong() shl 24) or
+                (memory[offset + 4].toUByte().toLong() shl 32) or
+                (memory[offset + 5].toUByte().toLong() shl 40) or
+                (memory[offset + 6].toUByte().toLong() shl 48) or
+                (memory[offset + 7].toUByte().toLong() shl 56)
+
+        Int64Value(value)
+    }
+
+    @InstructionExecutor(UniqueIds.INT64_LOAD_32U)
+    @JvmStatic
+    fun execLoadInt64_32u(
+        store: Store,
+        stack: Stack,
+        instruction: Int64Load32UInstruction
+    ) = execLoad(
+        store,
+        stack,
+        instruction.offset.toInt(),
+        4
+    ) { memory, offset ->
+        val value = memory[offset].toUByte().toLong() or
+                (memory[offset + 1].toUByte().toLong() shl 8) or
+                (memory[offset + 2].toUByte().toLong() shl 16) or
+                (memory[offset + 3].toUByte().toLong() shl 24)
+
+        Int64Value(value)
     }
 }
