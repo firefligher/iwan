@@ -1,51 +1,44 @@
 package dev.fir3.iwan.engine.vm
 
-import dev.fir3.iwan.engine.models.AuxiliaryModuleInstance
-import dev.fir3.iwan.engine.models.InstantiatedModuleInstance
-import dev.fir3.iwan.engine.models.ReferenceValue
-import dev.fir3.iwan.engine.models.Value
-import dev.fir3.iwan.engine.models.stack.StackFrame
-import dev.fir3.iwan.engine.models.stack.StackLabel
-import dev.fir3.iwan.engine.models.stack.StackValue
+import dev.fir3.iwan.engine.models.*
 import dev.fir3.iwan.engine.vm.interpreter.Interpreter
+import dev.fir3.iwan.engine.vm.stack.DefaultStack
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.*
 import dev.fir3.iwan.io.wasm.models.instructions.*
+import dev.fir3.iwan.io.wasm.models.valueTypes.NumberType
+import dev.fir3.iwan.io.wasm.models.valueTypes.ReferenceType
+import dev.fir3.iwan.io.wasm.models.valueTypes.ValueType
+import dev.fir3.iwan.io.wasm.models.valueTypes.VectorType
 
 object Instantiation {
     fun instantiate(module: Module): InstantiatedModuleInstance {
         val auxiliaryInstance = Allocation.allocateAuxiliaryModule(module)
+        val stack = DefaultStack()
+        val interpreter = Interpreter(stack)
 
-        Stack.push(StackFrame(arrayOf(), auxiliaryInstance, 0))
-        val globalInitializers = mutableListOf<Value>()
-
-        for (global in module.globals) {
-            globalInitializers += executeAndGetValue(
+        val globalInitializers = module.globals.map { global ->
+            execute(
+                stack,
+                interpreter,
+                auxiliaryInstance,
+                global.type.valueType,
                 global.initializer.body
-            ).value
+            )
         }
 
-        val elementInitializers = mutableListOf<List<ReferenceValue>>()
-
-        for (element in module.elements) {
-            val values = element
-                .initializers
-                .map { expression ->
-                    val value = executeAndGetValue(expression.body).value
-
-                    if (value !is ReferenceValue) {
-                        throw IllegalStateException(
-                            "Element initializer evaluated to non-reference " +
-                                    "value"
-                        )
-                    }
-
-                    value
-                }
-
-            elementInitializers.add(values)
+        val elementInitializers = module.elements.map { element ->
+            element.initializers.map { expression ->
+                execute(
+                    stack,
+                    interpreter,
+                    auxiliaryInstance,
+                    element.type,
+                    expression.body
+                ) as ReferenceValue
+            }
         }
 
-        Stack.pop()
         Allocation.deallocateAuxiliaryModuleInstance(auxiliaryInstance)
 
         // Instantiation
@@ -56,8 +49,6 @@ object Instantiation {
             elementInitializers
         )
 
-        Stack.push(StackFrame(arrayOf(), instance, 0))
-
         for (index in module.elements.indices) {
             val element = module.elements[index]
 
@@ -65,6 +56,10 @@ object Instantiation {
                 val n = element.initializers.size
 
                 execute(
+                    stack,
+                    interpreter,
+                    instance,
+                    resultType = null,
                     element.offset.body + listOf(
                         Int32ConstInstruction(0),
                         Int32ConstInstruction(n),
@@ -75,7 +70,13 @@ object Instantiation {
             }
 
             if (element is DeclarativeElement) {
-                execute(listOf(ElementDropInstruction(index.toUInt())))
+                execute(
+                    stack,
+                    interpreter,
+                    instance,
+                    resultType = null,
+                    listOf(ElementDropInstruction(index.toUInt()))
+                )
             }
         }
 
@@ -84,6 +85,10 @@ object Instantiation {
 
             if (data is ActiveData) {
                 execute(
+                    stack,
+                    interpreter,
+                    instance,
+                    resultType = null,
                     data.offset.body + listOf(
                         Int32ConstInstruction(0),
                         Int32ConstInstruction(data.initializers.size),
@@ -94,19 +99,33 @@ object Instantiation {
             }
         }
 
-        Stack.pop()
         return instance
     }
 
-    private fun execute(instructions: List<Instruction>) {
-        Stack.push(StackLabel(1, instructions, 0, false))
-        Interpreter.execute()
-    }
-
-    private fun executeAndGetValue(
+    private fun execute(
+        stack: Stack,
+        interpreter: Interpreter,
+        module: ModuleInstance,
+        resultType: ValueType?,
         instructions: List<Instruction>
-    ): StackValue {
-        execute(instructions)
-        return Stack.pop() as StackValue
+    ): Any {
+        stack.pushInitializerFrame(
+            module,
+            resultType,
+            instructions
+        )
+
+        interpreter.execute()
+
+        return when (resultType) {
+            NumberType.Float32 -> stack.popFloat32()
+            NumberType.Float64 -> stack.popFloat64()
+            NumberType.Int32 -> stack.popInt32()
+            NumberType.Int64 -> stack.popInt64()
+            ReferenceType.ExternalReference,
+            ReferenceType.FunctionReference -> stack.popReference()
+            VectorType.Vector128 -> stack.popVector128()
+            null -> Unit
+        }
     }
 }

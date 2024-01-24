@@ -8,7 +8,7 @@ sealed interface FunctionInstance {
 }
 
 interface HostFunctionInstance : FunctionInstance {
-    fun invoke(parameters: List<Value>): List<Value>
+    fun invoke(parameters: List<Any>): List<Any>
 }
 
 data class WasmFunctionInstance(

@@ -1,8 +1,7 @@
 package dev.fir3.iwan.engine.vm.instructions
 
 import dev.fir3.iwan.engine.models.FunctionReference
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.ReferenceFunctionInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
 
@@ -14,10 +13,9 @@ object ReferenceExecutor : InstructionExecutionContainer {
         instruction: ReferenceFunctionInstruction
     ) {
         val address = stack
-            .currentFrame
-            .module
+            .currentModule
             .functionAddresses[instruction.functionIndex.toInt()]
 
-        stack.push(StackValue(FunctionReference(address)))
+        stack.pushReference(FunctionReference(address))
     }
 }

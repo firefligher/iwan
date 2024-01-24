@@ -1,9 +1,10 @@
 package dev.fir3.iwan.engine.vm.interpreter
 
-import dev.fir3.iwan.engine.vm.Stack
+import dev.fir3.iwan.engine.models.vm.InterpreterState
 import dev.fir3.iwan.engine.vm.Store
 import dev.fir3.iwan.engine.vm.instructions.InstructionExecutionContainer
 import dev.fir3.iwan.engine.vm.instructions.InstructionExecutor
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.common.ClassLoaderUtilities
 import dev.fir3.iwan.io.wasm.models.instructions.Instruction
 import dev.fir3.iwan.jvm.bytecode.GeneratedClassLoader
@@ -19,8 +20,16 @@ import java.lang.reflect.Method
 import kotlin.reflect.full.createInstance
 
 object JumpClassFactory {
-    private const val INSTANCE_FIELD_JVM = "INSTANCE"
-    private const val INSTRUCTION_LOCAL_INDEX = 2
+    private const val GET_STACK_METHOD_NAME_JVM = "getStack"
+    private const val GET_STORE_METHOD_NAME_JVM = "getStore"
+    private const val GET_INSTRUCTION_METHOD_NAME_JVM = "getInstruction"
+    private const val INTERPRETER_STATE_LOCAL_INDEX = 2
+
+    private val INSTRUCTION_NAME_JVM =
+        Instruction::class.java.name.replace('.', '/')
+
+    private val INTERPRETER_STATE_NAME_JVM =
+        InterpreterState::class.java.name.replace('.', '/')
 
     private val JUMP_CLASS_NAME = JumpClassFactory::class.java.`package`.name +
             ".DynamicJumpClass"
@@ -32,7 +41,21 @@ object JumpClassFactory {
     private val UNSUPPORTED_OPERATION_EXCEPTION_NAME_JVM =
         UnsupportedOperationException::class.java.name.replace('.', '/')
 
+    private val GET_STACK_METHOD_TYPE_JVM = "()$STACK_TYPE_JVM"
+    private val GET_STORE_METHOD_TYPE_JVM = "()$STORE_TYPE_JVM"
+    private val GET_INSTRUCTION_METHOD_TYPE_JVM = "()L$INSTRUCTION_NAME_JVM;"
+
+    // Cache
+
+    private var _cachedClass: JumpClass? = null
+
     fun create(): JumpClass {
+        var cachedClass = _cachedClass
+
+        if (cachedClass != null) {
+            return cachedClass
+        }
+
         val executors = queryExecutors()
         val jumpTargetGenerator = createJumpTargetGenerator(executors)
         val jumpTable = JumpTable(
@@ -43,9 +66,12 @@ object JumpClassFactory {
         val generatedJumpClass = JumpClassGenerator
             .generate(JUMP_CLASS_NAME, jumpTable)
 
-        return GeneratedClassLoader
+        cachedClass = GeneratedClassLoader
             .load(generatedJumpClass)
             .createInstance()
+
+        _cachedClass = cachedClass
+        return cachedClass
     }
 
     private fun createJumpTargetGenerator(executors: Map<Int, Method>) =
@@ -88,12 +114,16 @@ object JumpClassFactory {
         var descriptor = "("
 
         for (parameterType in executorParameterTypes) {
+            dst.visitVarInsn(Opcodes.ALOAD, INTERPRETER_STATE_LOCAL_INDEX)
+            dst.visitTypeInsn(Opcodes.CHECKCAST, INTERPRETER_STATE_NAME_JVM)
+
             if (parameterType.isCompatible<Stack>()) {
-                dst.visitFieldInsn(
-                    Opcodes.GETSTATIC,
-                    STACK_NAME_JVM,
-                    INSTANCE_FIELD_JVM,
-                    STACK_TYPE_JVM
+                dst.visitMethodInsn(
+                    Opcodes.INVOKEVIRTUAL,
+                    INTERPRETER_STATE_NAME_JVM,
+                    GET_STACK_METHOD_NAME_JVM,
+                    GET_STACK_METHOD_TYPE_JVM,
+                    false
                 )
 
                 descriptor += STACK_TYPE_JVM
@@ -101,11 +131,12 @@ object JumpClassFactory {
             }
 
             if (parameterType.isCompatible<Store>()) {
-                dst.visitFieldInsn(
-                    Opcodes.GETSTATIC,
-                    STORE_NAME_JVM,
-                    INSTANCE_FIELD_JVM,
-                    STORE_TYPE_JVM
+                dst.visitMethodInsn(
+                    Opcodes.INVOKEVIRTUAL,
+                    INTERPRETER_STATE_NAME_JVM,
+                    GET_STORE_METHOD_NAME_JVM,
+                    GET_STORE_METHOD_TYPE_JVM,
+                    false
                 )
 
                 descriptor += STORE_TYPE_JVM
@@ -117,7 +148,14 @@ object JumpClassFactory {
                     .name
                     .replace('.', '/')
 
-                dst.visitVarInsn(Opcodes.ALOAD, INSTRUCTION_LOCAL_INDEX)
+                dst.visitMethodInsn(
+                    Opcodes.INVOKEVIRTUAL,
+                    INTERPRETER_STATE_NAME_JVM,
+                    GET_INSTRUCTION_METHOD_NAME_JVM,
+                    GET_INSTRUCTION_METHOD_TYPE_JVM,
+                    false
+                )
+
                 dst.visitTypeInsn(
                     Opcodes.CHECKCAST,
                     instructionClassNameJvm

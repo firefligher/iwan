@@ -7,17 +7,17 @@ import dev.fir3.iwan.io.wasm.models.valueTypes.ValueType
 import dev.fir3.iwan.io.wasm.models.valueTypes.VectorType
 
 object DefaultValues {
-    fun getDefaultValue(valueType: ValueType) = when (valueType) {
-        NumberType.Float32 -> Float32Value(0F)
-        NumberType.Float64 -> Float64Value(0.0)
-        NumberType.Int32 -> Int32Value(0)
-        NumberType.Int64 -> Int64Value(0L)
+    fun getDefaultValue(valueType: ValueType): Any = when (valueType) {
+        NumberType.Float32 -> 0F
+        NumberType.Float64 -> 0.0
+        NumberType.Int32 -> 0
+        NumberType.Int64 -> 0L
         ReferenceType.ExternalReference ->
             ReferenceNull(ReferenceType.ExternalReference)
 
         ReferenceType.FunctionReference ->
             ReferenceNull(ReferenceType.FunctionReference)
 
-        VectorType.Vector128 -> Vector128Value(0L, 0L)
+        VectorType.Vector128 -> error("Unsupported Operation")
     }
 }

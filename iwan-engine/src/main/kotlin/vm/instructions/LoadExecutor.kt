@@ -1,41 +1,34 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.Int32Value
-import dev.fir3.iwan.engine.models.Int64Value
-import dev.fir3.iwan.engine.models.NumberValue
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.engine.vm.Store
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.*
 
 object LoadExecutor : InstructionExecutionContainer {
-    private inline fun <
-            reified TValue,
-            reified TWrapperValue : NumberValue<TValue>
-    > execLoad(
+    private inline fun <TValue> execLoad(
         store: Store,
         stack: Stack,
         instructionOffset: Int,
         valueSize: Int,
-        loadFn: (
+        pusher: (TValue) -> Unit,
+        loader: (
             memory: ByteArray,
             memoryOffset: Int
-        ) -> TWrapperValue
+        ) -> TValue
     ) {
         val memoryAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .memoryAddresses[0]
 
         val memory = store.memories[memoryAddress]
-        val index = (stack.pop() as StackValue).value as Int32Value
-        val memoryOffset = index.value + instructionOffset
+        val index = stack.popInt32()
+        val memoryOffset = index + instructionOffset
 
         if (memoryOffset + valueSize > memory.data.size) {
             throw IllegalStateException("Load exceeds memory limit")
         }
 
-        stack.push(StackValue(loadFn(memory.data, memoryOffset)))
+        pusher(loader(memory.data, memoryOffset))
     }
 
     @InstructionExecutor(UniqueIds.INT32_LOAD)
@@ -48,14 +41,13 @@ object LoadExecutor : InstructionExecutionContainer {
         store,
         stack,
         instruction.offset.toInt(),
-        4
+        4,
+        stack::pushInt32
     ) { memory, offset ->
-        val value = memory[offset].toUByte().toInt() or
+        memory[offset].toUByte().toInt() or
                 (memory[offset + 1].toUByte().toInt() shl 8) or
                 (memory[offset + 2].toUByte().toInt() shl 16) or
                 (memory[offset + 3].toUByte().toInt() shl 24)
-
-        Int32Value(value)
     }
 
     @InstructionExecutor(UniqueIds.INT32_LOAD_8S)
@@ -68,10 +60,9 @@ object LoadExecutor : InstructionExecutionContainer {
         store,
         stack,
         instruction.offset.toInt(),
-        1
-    ) { memory, offset ->
-        Int32Value(memory[offset].toInt())
-    }
+        1,
+        stack::pushInt32
+    ) { memory, offset -> memory[offset].toInt() }
 
     @InstructionExecutor(UniqueIds.INT32_LOAD_8U)
     @JvmStatic
@@ -83,10 +74,9 @@ object LoadExecutor : InstructionExecutionContainer {
         store,
         stack,
         instruction.offset.toInt(),
-        1
-    ) { memory, offset ->
-        Int32Value(memory[offset].toUByte().toInt())
-    }
+        1,
+        stack::pushInt32
+    ) { memory, offset -> memory[offset].toUByte().toInt() }
 
     @InstructionExecutor(UniqueIds.INT64_LOAD)
     @JvmStatic
@@ -98,9 +88,10 @@ object LoadExecutor : InstructionExecutionContainer {
         store,
         stack,
         instruction.offset.toInt(),
-        8
+        8,
+        stack::pushInt64
     ) { memory, offset ->
-        val value = memory[offset].toUByte().toLong() or
+        memory[offset].toUByte().toLong() or
                 (memory[offset + 1].toUByte().toLong() shl 8) or
                 (memory[offset + 2].toUByte().toLong() shl 16) or
                 (memory[offset + 3].toUByte().toLong() shl 24) or
@@ -108,8 +99,6 @@ object LoadExecutor : InstructionExecutionContainer {
                 (memory[offset + 5].toUByte().toLong() shl 40) or
                 (memory[offset + 6].toUByte().toLong() shl 48) or
                 (memory[offset + 7].toUByte().toLong() shl 56)
-
-        Int64Value(value)
     }
 
     @InstructionExecutor(UniqueIds.INT64_LOAD_32U)
@@ -122,13 +111,12 @@ object LoadExecutor : InstructionExecutionContainer {
         store,
         stack,
         instruction.offset.toInt(),
-        4
+        4,
+        stack::pushInt64
     ) { memory, offset ->
-        val value = memory[offset].toUByte().toLong() or
+        memory[offset].toUByte().toLong() or
                 (memory[offset + 1].toUByte().toLong() shl 8) or
                 (memory[offset + 2].toUByte().toLong() shl 16) or
                 (memory[offset + 3].toUByte().toLong() shl 24)
-
-        Int64Value(value)
     }
 }

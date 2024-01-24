@@ -1,70 +1,43 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.Int32Value
-import dev.fir3.iwan.engine.models.stack.StackLabel
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.ConditionalBranchInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.TableBranchInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UnconditionalBranchInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
 
 object BranchExecutor : InstructionExecutionContainer {
-    private fun execJump(stack: Stack, labelIndex: Int) {
-        val label = stack.labels[labelIndex]
-        val parameterValues = label
-            .n
-            .downTo(1)
-            .map { Stack.pop() as StackValue }
-
-        labelIndex.downTo(0).forEach { _ ->
-            while (true) {
-                val element = Stack.pop()
-
-                if (element is StackValue) continue
-                if (element is StackLabel) break
-
-                throw IllegalStateException(
-                    "Encountered unexpected value on stack"
-                )
-            }
-        }
-
-        if (label.isLoop) {
-            // If we branch to a loop instruction, we want to decrement the
-            // instruction pointer. Otherwise, there is no loop.
-
-            stack.currentLabel!!.instructionIndex--
-        }
-
-        parameterValues.reversed().forEach(Stack::push)
-    }
-
     @InstructionExecutor(UniqueIds.CONDITIONAL_BRANCH)
     @JvmStatic
     fun execConditional(
         stack: Stack,
         instruction: ConditionalBranchInstruction
     ) {
-        val value = ((stack.pop() as StackValue).value as Int32Value).value
-        if (value != 0) execJump(stack, instruction.labelIndex.toInt())
+        val value = stack.popInt32()
+
+        if (value != 0) {
+            stack.dropLabels(
+                instruction.labelIndex.toInt() + 1,
+                isBranch = true
+            )
+        }
     }
 
     @InstructionExecutor(UniqueIds.TABLE_BRANCH)
     @JvmStatic
     fun execTable(stack: Stack, instruction: TableBranchInstruction) {
-        val index = ((stack.pop() as StackValue).value as Int32Value).value
+        val index = stack.popInt32()
 
-        if (index < instruction.labelIndices.size) {
-            execJump(stack, instruction.labelIndices[index].toInt())
-        } else {
-            execJump(
-                stack,
+        stack.dropLabels(
+            if (index < instruction.labelIndices.size) {
+                instruction.labelIndices[index].toInt()
+            } else {
                 instruction
                     .labelIndices[instruction.tableIndex.toInt()]
                     .toInt()
-            )
-        }
+            } + 1,
+            isBranch = true
+        )
     }
 
     @InstructionExecutor(UniqueIds.UNCONDITIONAL_BRANCH)
@@ -72,5 +45,5 @@ object BranchExecutor : InstructionExecutionContainer {
     fun execUnconditional(
         stack: Stack,
         instruction: UnconditionalBranchInstruction
-    ) = execJump(stack, instruction.labelIndex.toInt())
+    ) = stack.dropLabels(instruction.labelIndex.toInt() + 1, isBranch = true)
 }

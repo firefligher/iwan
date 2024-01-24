@@ -4,6 +4,7 @@ import dev.fir3.iwan.engine.hacky.FakeHostFunctionInstance
 import dev.fir3.iwan.engine.models.*
 import dev.fir3.iwan.io.wasm.models.*
 import dev.fir3.iwan.io.wasm.models.Function
+import dev.fir3.iwan.io.wasm.models.valueTypes.NumberType
 import dev.fir3.iwan.io.wasm.models.valueTypes.ReferenceType
 
 object Allocation {
@@ -40,10 +41,21 @@ object Allocation {
 
     private fun allocateGlobal(
         type: GlobalType,
-        value: Value
+        value: Any
     ): Int {
         val address = Store.globals.size
-        val instance = GlobalInstance(type, value)
+        val instance = GlobalInstance(
+            type.isMutable,
+            type.valueType
+        )
+
+        when (type.valueType) {
+            NumberType.Float32 -> instance.float32 = value as Float
+            NumberType.Float64 -> instance.float64 = value as Double
+            NumberType.Int32 -> instance.int32 = value as Int
+            NumberType.Int64 -> instance.int64 = value as Long
+            else -> error("Not supported.")
+        }
 
         Store.globals.add(address, instance)
         return address
@@ -97,7 +109,7 @@ object Allocation {
 
     fun allocateModule(
         module: Module,
-        globalValues: List<Value>,
+        globalValues: List<Any>,
         elementValues: List<List<ReferenceValue>>
     ): InstantiatedModuleInstance {
         val dataAddresses = mutableListOf<Int>()

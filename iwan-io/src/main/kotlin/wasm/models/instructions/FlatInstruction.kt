@@ -206,7 +206,7 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_GT_U(UniqueIds.INT32_GT_U),
 
     @InstructionInfo(0x4Cu, FlatInstructionStrategy::class)
-    INT32_LE_S(0xFF),
+    INT32_LE_S(UniqueIds.INT32_LE_S),
 
     @InstructionInfo(0x4Du, FlatInstructionStrategy::class)
     INT32_LE_U(UniqueIds.INT32_LE_U),

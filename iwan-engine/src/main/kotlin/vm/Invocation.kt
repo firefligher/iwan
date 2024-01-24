@@ -1,109 +1,52 @@
 package dev.fir3.iwan.engine.vm
 
-import dev.fir3.iwan.engine.models.EmptyModuleInstance
 import dev.fir3.iwan.engine.models.HostFunctionInstance
-import dev.fir3.iwan.engine.models.Value
 import dev.fir3.iwan.engine.models.WasmFunctionInstance
-import dev.fir3.iwan.engine.models.stack.StackFrame
-import dev.fir3.iwan.engine.models.stack.StackLabel
-import dev.fir3.iwan.engine.models.stack.StackValue
 import dev.fir3.iwan.engine.vm.interpreter.Interpreter
+import dev.fir3.iwan.engine.vm.stack.DefaultStack
+import dev.fir3.iwan.io.wasm.models.valueTypes.NumberType
 
 object Invocation {
-    fun invoke(functionAddress: Int, values: List<Value>): List<Value> {
-        Stack.push(StackFrame(emptyArray(), EmptyModuleInstance, 0))
+    fun invoke(functionAddress: Int, values: List<Any>): List<Any> {
+        println("Entering function $functionAddress")
 
-        for (value in values) {
-            Stack.push(StackValue(value))
+        val stack = DefaultStack()
+        val function = Store.functions[functionAddress]
+
+        // Prepare the stack with the parameters.
+
+        function.type.parameterTypes.forEachIndexed { index, type ->
+            val raw = values[index]
+
+            when (type) {
+                NumberType.Float32 -> stack.pushFloat32(raw as Float)
+                NumberType.Float64 -> stack.pushFloat64(raw as Double)
+                NumberType.Int32 -> stack.pushInt32(raw as Int)
+                NumberType.Int64 -> stack.pushInt64(raw as Long)
+                else -> error("Unsupported parameter type for invocation.")
+            }
         }
 
-        val result = invokeFunction(functionAddress)
-        Stack.pop()
+        // Invocation.
 
-        return result
-    }
-
-    private var invoc3 = 0
-
-    internal fun invokeFunction(functionAddress: Int): List<Value> {
-        return when (val instance = Store.functions[functionAddress]) {
-            is HostFunctionInstance -> {
-                println("Invoking Host function ${functionAddress}")
-                val r = invokeHostFunction(instance)
-                println("Invoked function ${functionAddress}")
-                r
-            }
+        when (function) {
+            is HostFunctionInstance -> error("Not supported.")
             is WasmFunctionInstance -> {
-                //println("Invoking WASM function ${functionAddress}")
-                val r = invokeWasmFunction(instance)
-                //println("Invoked function ${functionAddress}")
-                r
+                stack.pushFrame(function)
+                Interpreter(stack).execute()
             }
         }
-    }
 
-    private fun invokeHostFunction(
-        functionInstance: HostFunctionInstance
-    ): List<Value> {
-        val parameters = mutableListOf<Value>()
+        // Retrieve the result values.
 
-        functionInstance
-            .type
-            .parameterTypes
-            .size
-            .downTo(1)
-            .forEach { _ ->
-                parameters.add((Stack.pop() as StackValue).value)
+        return function.type.resultTypes.reversed().map { type ->
+            when (type) {
+                NumberType.Float32 -> stack.popFloat32()
+                NumberType.Float64 -> stack.popFloat64()
+                NumberType.Int32 -> stack.popInt32()
+                NumberType.Int64 -> stack.popInt64()
+                else -> error("Unsupported result type for invocation.")
             }
-
-        return functionInstance.invoke(parameters)
-    }
-
-    private fun invokeWasmFunction(
-        functionInstance: WasmFunctionInstance
-    ): List<Value> {
-        val functionType = functionInstance.type
-        val functionCode = functionInstance.code
-        val locals = mutableListOf<Value>()
-
-        for (index in 0 until functionType.parameterTypes.size) {
-            locals.add(0, (Stack.pop() as StackValue).value)
         }
-
-        for (index in 0 until functionCode.locals.size) {
-            locals.add(
-                DefaultValues.getDefaultValue(functionCode.locals[index])
-            )
-        }
-
-        val frame = StackFrame(
-            locals.toTypedArray(),
-            functionInstance.module,
-            functionType.resultTypes.size
-        )
-
-        Stack.push(frame)
-        Stack.push(
-            StackLabel(
-                functionType.resultTypes.size,
-                functionCode.body.body,
-                0,
-                false
-            )
-        )
-
-        Interpreter.execute()
-
-        val results = functionInstance.type.resultTypes.map { type ->
-            val value = (Stack.pop() as StackValue).value
-            require(value.type == type)
-            value
-        }
-
-        while (frame === Stack.currentFrame) {
-            Stack.pop()
-        }
-
-        return results
     }
 }

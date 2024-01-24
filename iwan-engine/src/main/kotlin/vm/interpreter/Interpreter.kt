@@ -1,59 +1,32 @@
 package dev.fir3.iwan.engine.vm.interpreter
 
-import dev.fir3.iwan.engine.models.stack.StackLabel
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
-import dev.fir3.iwan.io.wasm.models.instructions.CallInstruction
-import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
-import java.lang.UnsupportedOperationException
+import dev.fir3.iwan.engine.models.vm.InterpreterState
+import dev.fir3.iwan.engine.vm.Store
+import dev.fir3.iwan.engine.vm.stack.Stack
+import dev.fir3.iwan.io.wasm.models.instructions.BlockTypeInstruction
+import dev.fir3.iwan.io.wasm.models.instructions.FlatInstruction
 
-object Interpreter {
+class Interpreter(stack: Stack) {
     private val _jumpClass = JumpClassFactory.create()
+    private val _stack = stack
 
     fun execute() {
+        val state = InterpreterState(
+            _stack,
+            Store,
+            FlatInstruction.UNREACHABLE
+        )
+
         while (true) {
-            val label = Stack.currentLabel ?: break
-            val instructions = label.instructions
-            val nextInstruction = label.instructionIndex
-
-            if (instructions.size <= nextInstruction) {
-                popLabel()
-                continue
-            }
-
-            val instruction = instructions[nextInstruction]
-            label.instructionIndex++
-
-            if (instruction.uniqueId == UniqueIds.RETURN) {
-                break
-            }
+            val instruction = _stack.nextInstruction() ?: break
+            state.instruction = instruction
 
             try {
-                _jumpClass.evaluate(instruction.uniqueId, instruction)
+                _jumpClass.evaluate(instruction.uniqueId, state)
             } catch (ex: UnsupportedOperationException) {
                 println(instruction)
                 throw ex
             }
         }
-    }
-
-    private fun popLabel() {
-        val values = mutableListOf<StackValue>()
-
-        while (true) {
-            val value = Stack.pop()
-
-            if (value is StackLabel) break
-            if (value is StackValue) {
-                values += value
-                continue
-            }
-
-            throw IllegalStateException(
-                "Encountered unexpected object on stack"
-            )
-        }
-
-        values.reversed().forEach(Stack::push)
     }
 }

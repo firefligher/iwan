@@ -1,41 +1,36 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.*
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.engine.vm.Store
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.*
 
 object StoreExecutor : InstructionExecutionContainer {
-    private inline fun <
-            reified TValue,
-            reified TWrapperValue : NumberValue<TValue>
-    > execStore(
+    private inline fun <TValue> execStore(
         store: Store,
         stack: Stack,
         instructionOffset: Int,
         valueSize: Int,
-        storeFn: (
+        popper: () -> TValue,
+        storer: (
             memory: ByteArray,
             memoryOffset: Int,
             value: TValue
         ) -> Unit
     ) {
         val memoryAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .memoryAddresses[0]
 
         val memory = store.memories[memoryAddress]
-        val value = (stack.pop() as StackValue).value as TWrapperValue
-        val index = (stack.pop() as StackValue).value as Int32Value
-        val memoryOffset = index.value + instructionOffset
+        val value = popper()
+        val index = stack.popInt32()
+        val memoryOffset = index + instructionOffset
 
         if (memoryOffset + valueSize > memory.data.size) {
             throw IllegalStateException("Store exceeds memory limit")
         }
 
-        storeFn(memory.data, memoryOffset, value.value)
+        storer(memory.data, memoryOffset, value)
     }
 
     @InstructionExecutor(UniqueIds.STORE_FLOAT32)
@@ -44,11 +39,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Float32StoreInstruction
-    ) = execStore<Float, Float32Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        4
+        4,
+        stack::popFloat32
     ) { memory, offset, value ->
         val bits = value.toBits()
         memory[offset] = bits.toByte()
@@ -63,11 +59,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Float64StoreInstruction
-    ) = execStore<Double, Float64Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        8
+        8,
+        stack::popFloat64
     ) { memory, offset, value ->
         val bits = value.toBits()
         memory[offset] = bits.toByte()
@@ -86,11 +83,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int32StoreInstruction
-    ) = execStore<Int, Int32Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        4
+        4,
+        stack::popInt32
     ) { memory, offset, value ->
         if (offset == 65596) {
             println()
@@ -108,11 +106,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int32Store8Instruction
-    ) = execStore<Int, Int32Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        1
+        1,
+        stack::popInt32
     ) { memory, offset, value ->
         memory[offset] = value.toByte()
     }
@@ -123,11 +122,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int32Store16Instruction
-    ) = execStore<Int, Int32Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        2
+        2,
+        stack::popInt32
     ) { memory, offset, value ->
         memory[offset] = value.toByte()
         memory[offset + 1] = (value shr 8).toByte()
@@ -139,11 +139,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int64StoreInstruction
-    ) = execStore<Long, Int64Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        8
+        8,
+        stack::popInt64
     ) { memory, offset, value ->
         memory[offset] = value.toByte()
         memory[offset + 1] = (value shr 8).toByte()
@@ -161,11 +162,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int64Store8Instruction
-    ) = execStore<Long, Int64Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        1
+        1,
+        stack::popInt64
     ) { memory, offset, value ->
         memory[offset] = value.toByte()
     }
@@ -176,11 +178,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int64Store16Instruction
-    ) = execStore<Long, Int64Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        2
+        2,
+        stack::popInt64
     ) { memory, offset, value ->
         memory[offset] = value.toByte()
         memory[offset + 1] = (value shr 8).toByte()
@@ -192,11 +195,12 @@ object StoreExecutor : InstructionExecutionContainer {
         store: Store,
         stack: Stack,
         instruction: Int64Store32Instruction
-    ) = execStore<Long, Int64Value>(
+    ) = execStore(
         store,
         stack,
         instruction.offset.toInt(),
-        4
+        4,
+        stack::popInt64
     ) { memory, offset, value ->
         memory[offset] = value.toByte()
         memory[offset + 1] = (value shr 8).toByte()

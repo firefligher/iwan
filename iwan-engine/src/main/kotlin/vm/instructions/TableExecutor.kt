@@ -1,10 +1,7 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.Int32Value
-import dev.fir3.iwan.engine.models.ReferenceValue
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.engine.vm.Store
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.TableInitInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.TableSetInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
@@ -18,21 +15,19 @@ object TableExecutor : InstructionExecutionContainer {
         instruction: TableInitInstruction
     ) {
         val tableAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .tableAddresses[instruction.tableIndex.toInt()]
 
         val elementAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .elementAddresses[instruction.elementIndex.toInt()]
 
         val table = store.tables[tableAddress].elements
         val element = store.elements[elementAddress].elements
 
-        val count = ((stack.pop() as StackValue).value as Int32Value).value
-        val srcIndex = ((stack.pop() as StackValue).value as Int32Value).value
-        val dstIndex = ((stack.pop() as StackValue).value as Int32Value).value
+        val count = stack.popInt32()
+        val srcIndex = stack.popInt32()
+        val dstIndex = stack.popInt32()
 
         val trap = (srcIndex + count > element.size) or
                 (dstIndex + count > table.size)
@@ -52,13 +47,12 @@ object TableExecutor : InstructionExecutionContainer {
     @JvmStatic
     fun execSet(store: Store, stack: Stack, instruction: TableSetInstruction) {
         val tableAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .tableAddresses[instruction.tableIndex.toInt()]
 
         val table = store.tables[tableAddress].elements
-        val value = (stack.pop() as StackValue).value as ReferenceValue
-        val index = ((stack.pop() as StackValue).value as Int32Value).value
+        val value = stack.popReference()
+        val index = stack.popInt32()
 
         if (index >= table.size) {
             throw IllegalStateException("Table set exceeds table boundaries")

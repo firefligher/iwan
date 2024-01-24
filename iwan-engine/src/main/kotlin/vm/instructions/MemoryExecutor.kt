@@ -1,10 +1,9 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.*
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Stack
 import dev.fir3.iwan.engine.vm.Store
-import dev.fir3.iwan.io.wasm.models.instructions.*
+import dev.fir3.iwan.engine.vm.stack.Stack
+import dev.fir3.iwan.io.wasm.models.instructions.MemoryInitInstruction
+import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
 
 object MemoryExecutor : InstructionExecutionContainer {
     @InstructionExecutor(UniqueIds.MEMORY_INIT)
@@ -15,21 +14,19 @@ object MemoryExecutor : InstructionExecutionContainer {
         instruction: MemoryInitInstruction
     ) {
         val memoryAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .memoryAddresses[0]
 
         val dataAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .data[instruction.dataIndex.toInt()]
 
         val memory = store.memories[memoryAddress].data
         val data = store.data[dataAddress].data
 
-        val count = ((stack.pop() as StackValue).value as Int32Value).value
-        val srcIndex = ((stack.pop() as StackValue).value as Int32Value).value
-        val dstIndex = ((Stack.pop() as StackValue).value as Int32Value).value
+        val count = stack.popInt32()
+        val srcIndex = stack.popInt32()
+        val dstIndex = stack.popInt32()
 
         val trap = (srcIndex + count > data.size) or
                 (dstIndex + count > memory.size)

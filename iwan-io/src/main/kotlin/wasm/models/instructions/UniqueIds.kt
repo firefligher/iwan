@@ -82,4 +82,5 @@ object UniqueIds {
     const val INT32_WRAP_INT64 = 75
     const val INT64_LOAD_32U = 76
     const val INT64_GT_U = 77
+    const val INT32_LE_S = 78
 }

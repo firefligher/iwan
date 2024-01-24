@@ -1,30 +1,69 @@
 package dev.fir3.iwan.engine.vm.instructions
 
-import dev.fir3.iwan.engine.models.FunctionReference
-import dev.fir3.iwan.engine.models.Int32Value
-import dev.fir3.iwan.engine.models.ReferenceNull
-import dev.fir3.iwan.engine.models.stack.StackValue
-import dev.fir3.iwan.engine.vm.Invocation
-import dev.fir3.iwan.engine.vm.Stack
+import dev.fir3.iwan.engine.models.*
 import dev.fir3.iwan.engine.vm.Store
+import dev.fir3.iwan.engine.vm.stack.Stack
 import dev.fir3.iwan.io.wasm.models.instructions.CallIndirectInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.CallInstruction
 import dev.fir3.iwan.io.wasm.models.instructions.UniqueIds
+import dev.fir3.iwan.io.wasm.models.valueTypes.NumberType
+import dev.fir3.iwan.io.wasm.models.valueTypes.ReferenceType
+import dev.fir3.iwan.io.wasm.models.valueTypes.VectorType
 
 object CallExecutor : InstructionExecutionContainer {
+    private fun invokeFunction(stack: Stack, function: FunctionInstance) =
+        when (function) {
+            is HostFunctionInstance -> {
+                // TODO: Find better place for this code.
+
+                val parameterTypes = function.type.parameterTypes
+                val parameterCount = parameterTypes.size
+                val parameters = mutableListOf<Any>()
+
+                for (index in parameterCount - 1 downTo 0) {
+                    parameters.add(
+                        0,
+                        when (parameterTypes[index]) {
+                            NumberType.Float32 -> stack.popFloat32()
+                            NumberType.Float64 -> stack.popFloat64()
+                            NumberType.Int32 -> stack.popInt32()
+                            NumberType.Int64 -> stack.popInt64()
+                            ReferenceType.ExternalReference,
+                            ReferenceType.FunctionReference ->
+                                stack.popReference()
+
+                            VectorType.Vector128 -> stack.popVector128()
+                        }
+                    )
+                }
+
+                function.invoke(parameters).forEachIndexed { index, value ->
+                    when (function.type.resultTypes[index]) {
+                        NumberType.Float32 -> stack.pushFloat32(value as Float)
+                        NumberType.Float64 ->
+                            stack.pushFloat64(value as Double)
+
+                        NumberType.Int32 -> stack.pushInt32(value as Int)
+                        NumberType.Int64 -> stack.pushInt64(value as Long)
+                        ReferenceType.ExternalReference -> TODO()
+                        ReferenceType.FunctionReference -> TODO()
+                        VectorType.Vector128 -> TODO()
+                    }
+                }
+            }
+            is WasmFunctionInstance -> {
+                stack.pushFrame(function)
+            }
+        }
+
     @InstructionExecutor(UniqueIds.CALL)
     @JvmStatic
     fun exec(stack: Stack, instruction: CallInstruction) {
         val functionAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .functionAddresses[instruction.functionIndex.toInt()]
 
-        Invocation
-            .invokeFunction(functionAddress)
-            .reversed()
-            .map(::StackValue)
-            .forEach(Stack::push)
+        invokeFunction(stack, Store.functions[functionAddress])
     }
 
     @InstructionExecutor(UniqueIds.CALL_INDIRECT)
@@ -35,17 +74,11 @@ object CallExecutor : InstructionExecutionContainer {
         instruction: CallIndirectInstruction
     ) {
         val tableAddress = stack
-            .currentFrame
-            .module
+            .currentModule
             .tableAddresses[instruction.tableIndex.toInt()]
 
-        val functionType = stack
-            .currentFrame
-            .module
-            .types[instruction.typeIndex.toInt()]
-
         val table = store.tables[tableAddress].elements
-        val index = ((stack.pop() as StackValue).value as Int32Value).value
+        val index = stack.popInt32()
 
         if (index >= table.size) {
             throw IllegalStateException("Invalid indirection")
@@ -57,14 +90,7 @@ object CallExecutor : InstructionExecutionContainer {
             throw IllegalStateException("Null pointer indirection")
         }
 
-        // TODO: More security checks regarding type.
-
         val functionAddress = (reference as FunctionReference).functionAddress
-
-        Invocation
-            .invokeFunction(functionAddress)
-            .reversed()
-            .map(::StackValue)
-            .forEach(Stack::push)
+        invokeFunction(stack, Store.functions[functionAddress])
     }
 }
