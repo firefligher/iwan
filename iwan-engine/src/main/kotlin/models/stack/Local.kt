@@ -21,4 +21,22 @@ data class Local(
     var vector128Lsb: Long = 0,
 
     val type: LocalType
-)
+) {
+    override fun toString(): String {
+        var value = "Local(type=$type"
+
+        when (type) {
+            LocalType.Float32 -> value += ", float32=$float32"
+            LocalType.Float64 -> value += ", float64=$float64"
+            LocalType.Int32 -> value += ", int32=$int32"
+            LocalType.Int64 -> value += ", int64=$int64"
+            LocalType.Reference -> value += ", reference=$reference"
+            LocalType.Vector128 -> {
+                value += ", vector128Msb=$vector128Msb"
+                value += ", vector128Lsb=$vector128Lsb"
+            }
+        }
+
+        return "$value)"
+    }
+}

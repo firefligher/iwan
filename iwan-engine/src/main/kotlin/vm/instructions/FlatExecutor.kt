@@ -48,7 +48,7 @@ object FlatExecutor : InstructionExecutionContainer {
 
     @InstructionExecutor(UniqueIds.INT32_DIV_U)
     @JvmStatic
-    fun execInt32Div(stack: Stack) = execInt32Binary(stack) { a, b ->
+    fun execInt32DivU(stack: Stack) = execInt32Binary(stack) { a, b ->
         (a.toUInt() / b.toUInt()).toInt()
     }
 
@@ -241,7 +241,7 @@ object FlatExecutor : InstructionExecutionContainer {
     @InstructionExecutor(UniqueIds.INT64_SHL)
     @JvmStatic
     fun execInt64Shl(stack: Stack) = execInt64Binary(stack) { a, b ->
-        a shl (b and 0x1F).toInt()
+        a shl (b and 0x3F).toInt()
     }
 
     @InstructionExecutor(UniqueIds.INT64_SHR_U)

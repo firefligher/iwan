@@ -97,7 +97,7 @@ data class Shell(
         when (type) {
             ShellType.Float32 -> value += ", float32=$float32"
             ShellType.Float64 -> value += ", float64=$float64"
-            ShellType.Frame -> {}
+            ShellType.Frame -> value += ", locals=" + locals.contentToString()
             ShellType.Int32 -> value += ", int32=$int32"
             ShellType.Int64 -> value += ", int64=$int64"
             ShellType.Label -> {}

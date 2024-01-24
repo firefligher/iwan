@@ -8,8 +8,6 @@ import dev.fir3.iwan.io.wasm.models.valueTypes.NumberType
 
 object Invocation {
     fun invoke(functionAddress: Int, values: List<Any>): List<Any> {
-        println("Entering function $functionAddress")
-
         val stack = DefaultStack()
         val function = Store.functions[functionAddress]
 
