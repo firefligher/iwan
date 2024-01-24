@@ -182,7 +182,7 @@ object Allocation {
         for (tableType in module.tables) {
             tableAddresses += allocateTable(
                 tableType,
-                ReferenceNull(tableType.elementType)
+                ReferenceNull.getFor(tableType.elementType)
             )
         }
 

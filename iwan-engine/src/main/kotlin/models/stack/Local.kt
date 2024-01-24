@@ -20,7 +20,7 @@ data class Local(
     var vector128Msb: Long = 0,
     var vector128Lsb: Long = 0,
 
-    val type: LocalType
+    var type: LocalType = LocalType.Float32
 ) {
     override fun toString(): String {
         var value = "Local(type=$type"

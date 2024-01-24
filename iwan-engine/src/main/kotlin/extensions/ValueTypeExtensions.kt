@@ -16,12 +16,12 @@ val ValueType.defaultLocal get () = when (this) {
     NumberType.Int64 -> Local(type = LocalType.Int64)
     ReferenceType.ExternalReference -> Local(
         type = LocalType.Reference,
-        reference = ReferenceNull(ReferenceType.ExternalReference)
+        reference = ReferenceNull.EXTERNAL
     )
 
     ReferenceType.FunctionReference -> Local(
         type = LocalType.Reference,
-        reference = ReferenceNull(ReferenceType.FunctionReference)
+        reference = ReferenceNull.FUNCTION
     )
 
     VectorType.Vector128 -> Local(type = LocalType.Vector128)

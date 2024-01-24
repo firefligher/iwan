@@ -1,13 +1,19 @@
 package dev.fir3.iwan.engine.vm.stack
 
-import dev.fir3.iwan.engine.extensions.defaultLocal
 import dev.fir3.iwan.engine.extensions.toShellType
 import dev.fir3.iwan.engine.models.ModuleInstance
+import dev.fir3.iwan.engine.models.ReferenceNull
 import dev.fir3.iwan.engine.models.ReferenceValue
 import dev.fir3.iwan.engine.models.WasmFunctionInstance
-import dev.fir3.iwan.engine.models.stack.*
+import dev.fir3.iwan.engine.models.stack.LocalType
+import dev.fir3.iwan.engine.models.stack.Shell
+import dev.fir3.iwan.engine.models.stack.ShellType
+import dev.fir3.iwan.engine.models.stack.isValueType
 import dev.fir3.iwan.io.wasm.models.instructions.Instruction
+import dev.fir3.iwan.io.wasm.models.valueTypes.NumberType
+import dev.fir3.iwan.io.wasm.models.valueTypes.ReferenceType
 import dev.fir3.iwan.io.wasm.models.valueTypes.ValueType
+import dev.fir3.iwan.io.wasm.models.valueTypes.VectorType
 
 class DefaultStack : Stack {
     private var _currentFrame: Shell? = null
@@ -93,6 +99,9 @@ class DefaultStack : Stack {
         _currentInstructions = frame.previousBody
         _currentInstructionIndex = frame.previousBodyIndex
         _currentLabel = frame.previousLabel
+
+        LocalPool.release(frame.locals)
+        ShellPool.releaseChain(frame)
     }
 
     override fun dropLabels(count: Int, isBranch: Boolean) {
@@ -161,6 +170,7 @@ class DefaultStack : Stack {
         _currentLabel = lastLabel.previousLabel
 
         if (isLoop) _currentInstructionIndex--
+        ShellPool.releaseChain(currentLabel)
     }
 
     override fun dropPreviousValue() {
@@ -175,6 +185,7 @@ class DefaultStack : Stack {
 
         currentHead.previous = droppedValue.previous
         droppedValue.previous?.next = currentHead
+        ShellPool.release(droppedValue)
     }
 
     override fun dropValue() {
@@ -183,6 +194,7 @@ class DefaultStack : Stack {
 
         _currentHead = droppedHead.previous
         _currentHead?.next = null
+        ShellPool.release(droppedHead)
     }
 
     override fun nextInstruction(): Instruction? {
@@ -204,16 +216,22 @@ class DefaultStack : Stack {
         }
     }
 
-    private fun peekCheckedValueHead(expectedType: ShellType): Shell {
+    private inline fun <TValue> peekCheckedValueHead(
+        expectedType: ShellType,
+        retriever: (Shell) -> TValue
+    ): TValue {
         val peekedHead = checkCurrentHead()
         check(peekedHead.type == expectedType) {
             "Head type expectation not met."
         }
 
-        return peekedHead
+        return retriever(peekedHead)
     }
 
-    private fun popCheckedValueHead(expectedType: ShellType): Shell {
+    private inline fun <TValue> popCheckedValueHead(
+        expectedType: ShellType,
+        retriever: (Shell) -> TValue
+    ): TValue {
         val poppedHead = checkCurrentHead()
 
         check(poppedHead.type == expectedType) {
@@ -222,24 +240,35 @@ class DefaultStack : Stack {
 
         _currentHead = poppedHead.previous
         _currentHead?.next = null
-        return poppedHead
+
+        val result = retriever(poppedHead)
+        ShellPool.release(poppedHead)
+
+        return result
     }
 
-    override fun popFloat32() = popCheckedValueHead(ShellType.Float32).float32
-    override fun popFloat64() = popCheckedValueHead(ShellType.Float64).float64
-    override fun popInt32() = popCheckedValueHead(ShellType.Int32).int32
-    override fun popInt64() = popCheckedValueHead(ShellType.Int64).int64
+    override fun popFloat32() =
+        popCheckedValueHead(ShellType.Float32, Shell::float32)
 
-    override fun popIntoLocal(targetIndex: Int) =
-        transferIntoLocal(targetIndex, ::popCheckedValueHead)
+    override fun popFloat64() =
+        popCheckedValueHead(ShellType.Float64, Shell::float64)
+
+    override fun popInt32() =
+        popCheckedValueHead(ShellType.Int32, Shell::int32)
+
+    override fun popInt64() =
+        popCheckedValueHead(ShellType.Int64, Shell::int64)
+
+    override fun popIntoLocal(targetIndex: Int) = transferIntoLocal(
+        targetIndex
+    ) { type, callback -> popCheckedValueHead(type, callback) }
 
     override fun popReference(): ReferenceValue =
-        popCheckedValueHead(ShellType.Reference).reference
+        popCheckedValueHead(ShellType.Reference, Shell::reference)
 
-    override fun popVector128(): Pair<Long, Long> {
-        val shell = popCheckedValueHead(ShellType.Vector128)
-        return Pair(shell.vector128Msb, shell.vector128Lsb)
-    }
+    override fun popVector128() = popCheckedValueHead(
+        ShellType.Vector128
+    ) { shell -> Pair(shell.vector128Msb, shell.vector128Lsb) }
 
     override fun pushFloat32(value: Float) =
         pushShell(ShellType.Float32) { shell -> shell.float32 = value }
@@ -251,43 +280,117 @@ class DefaultStack : Stack {
         val parameterTypes = function.type.parameterTypes
         val localTypes = function.code.locals
         val parameterCount = parameterTypes.size
+        val localsCount = parameterCount + localTypes.size
+        val locals = LocalPool.allocate(localsCount)
 
-        val locals = Array(parameterCount + localTypes.size) { index ->
+        for (index in 0 until localsCount) {
             if (index < parameterCount) {
-                // On stack, the values are in the inverse order.
+                val inverseIndex = parameterCount - index - 1
+                val local = locals[inverseIndex]
 
-                popCheckedValueHead(
-                    parameterTypes[parameterCount - index - 1].toShellType()
-                ).toLocal()
-            } else {
-                localTypes[index - parameterCount].defaultLocal
+                when (parameterTypes[inverseIndex]) {
+                    NumberType.Float32 -> popCheckedValueHead(
+                        ShellType.Float32
+                    ) { shell ->
+                        local.type = LocalType.Float32
+                        local.float32 = shell.float32
+                    }
+
+                    NumberType.Float64 -> popCheckedValueHead(
+                        ShellType.Float64
+                    ) { shell ->
+                        local.type = LocalType.Float64
+                        local.float64 = shell.float64
+                    }
+
+                    NumberType.Int32 -> popCheckedValueHead(
+                        ShellType.Int32
+                    ) { shell ->
+                        local.type = LocalType.Int32
+                        local.int32 = shell.int32
+                    }
+
+                    NumberType.Int64 -> popCheckedValueHead(
+                        ShellType.Int64
+                    ) { shell ->
+                        local.type = LocalType.Int64
+                        local.int64 = shell.int64
+                    }
+                    ReferenceType.ExternalReference,
+                    ReferenceType.FunctionReference -> popCheckedValueHead(
+                        ShellType.Reference
+                    ) { shell ->
+                        local.type = LocalType.Reference
+                        local.reference = shell.reference
+                    }
+
+                    VectorType.Vector128 -> popCheckedValueHead(
+                        ShellType.Vector128
+                    ) { shell ->
+                        local.type = LocalType.Vector128
+                        local.vector128Msb = shell.vector128Msb
+                        local.vector128Lsb = shell.vector128Lsb
+                    }
+                }
+
+                continue
             }
-        }
 
-        // Correct the order of the parameters to match the (type) expectation.
+            val local = locals[index]
 
-        for (index in 0 until (parameterCount shr 1)) {
-            val tmpCopy = locals[index]
-            val peerIndex = parameterCount - index - 1
+            when (localTypes[index - parameterCount]) {
+                NumberType.Float32 -> {
+                    local.type = LocalType.Float32
+                    local.float32 = 0F
+                }
 
-            locals[index] = locals[peerIndex]
-            locals[peerIndex] = tmpCopy
+                NumberType.Float64 -> {
+                    local.type = LocalType.Float64
+                    local.float64 = 0.0
+                }
+
+                NumberType.Int32 -> {
+                    local.type = LocalType.Int32
+                    local.int32 = 0
+                }
+
+                NumberType.Int64 -> {
+                    local.type = LocalType.Int64
+                    local.int64 = 0
+                }
+
+                ReferenceType.ExternalReference -> {
+                    local.type = LocalType.Reference
+                    local.reference = ReferenceNull.EXTERNAL
+                }
+                ReferenceType.FunctionReference -> {
+                    local.type = LocalType.Reference
+                    local.reference = ReferenceNull.FUNCTION
+                }
+                VectorType.Vector128 -> {
+                    local.type = LocalType.Vector128
+                    local.vector128Msb = 0
+                    local.vector128Lsb = 0
+                }
+            }
         }
 
         // Create the frame.
 
-        val frame = Shell(
-            type = ShellType.Frame,
-            locals = locals,
-            module = function.module,
-            resultTypes = function.type.resultTypes,
+        val frame = ShellPool.allocate()
 
-            previous = _currentHead,
-            previousBody = _currentInstructions,
-            previousBodyIndex = _currentInstructionIndex,
-            previousFrame = _currentFrame,
-            previousLabel = _currentLabel
-        )
+        frame.type = ShellType.Frame
+        frame.locals = locals
+        frame.module = function.module
+        frame.resultTypes = function.type.resultTypes
+
+        frame.previous = _currentHead
+        frame.previousBody = _currentInstructions
+        frame.previousBodyIndex = _currentInstructionIndex
+        frame.previousFrame = _currentFrame
+        frame.previousLabel = _currentLabel
+
+        // Push the frame
 
         _currentHead?.next = frame
         _currentHead = frame
@@ -334,17 +437,21 @@ class DefaultStack : Stack {
         resultType: ValueType?,
         instructions: List<Instruction>
     ) {
-        val frame = Shell(
-            type = ShellType.Frame,
-            module = module,
-            resultTypes = resultType?.let(::listOf) ?: emptyList(),
+        val frame = ShellPool.allocate()
 
-            previous = _currentHead,
-            previousBody = _currentInstructions,
-            previousBodyIndex = _currentInstructionIndex,
-            previousFrame = _currentFrame,
-            previousLabel = _currentLabel
-        )
+        // Initialize frame
+
+        frame.type = ShellType.Frame
+        frame.module = module
+        frame.resultTypes = resultType?.let(::listOf) ?: emptyList()
+
+        frame.previous = _currentHead
+        frame.previousBody = _currentInstructions
+        frame.previousBodyIndex = _currentInstructionIndex
+        frame.previousFrame = _currentFrame
+        frame.previousLabel = _currentLabel
+
+        // Push frame
 
         _currentHead?.next = frame
         _currentHead = frame
@@ -365,16 +472,20 @@ class DefaultStack : Stack {
         instructions: List<Instruction>,
         isLoop: Boolean
     ) {
-        val label = Shell(
-            type = ShellType.Label,
-            isLoop = isLoop,
-            resultTypes = resultTypes,
+        val label = ShellPool.allocate()
 
-            previous = _currentHead,
-            previousBody = _currentInstructions,
-            previousBodyIndex = _currentInstructionIndex,
-            previousLabel = _currentLabel
-        )
+        // Initialize label
+
+        label.type = ShellType.Label
+        label.isLoop = isLoop
+        label.resultTypes = resultTypes
+
+        label.previous = _currentHead
+        label.previousBody = _currentInstructions
+        label.previousBodyIndex = _currentInstructionIndex
+        label.previousLabel = _currentLabel
+
+        // Push label
 
         _currentHead?.next = label
         _currentHead = label
@@ -390,7 +501,9 @@ class DefaultStack : Stack {
         type: ShellType,
         initializer: (Shell) -> Unit
     ) {
-        val shell = Shell(previous = _currentHead, type = type)
+        val shell = ShellPool.allocate()
+        shell.previous = _currentHead
+        shell.type = type
         initializer(shell)
 
         _currentHead?.next = shell
@@ -404,31 +517,40 @@ class DefaultStack : Stack {
         shell.vector128Lsb = lsb
     }
 
-    override fun teeIntoLocal(targetIndex: Int) =
-        transferIntoLocal(targetIndex, ::peekCheckedValueHead)
+    override fun teeIntoLocal(targetIndex: Int) = transferIntoLocal(
+        targetIndex
+    ) { type, callback -> peekCheckedValueHead(type, callback) }
 
     private inline fun transferIntoLocal(
         targetIndex: Int,
-        valueReader: (ShellType) -> Shell
+        valueReader: (ShellType, (Shell) -> Unit) -> Unit
     ) {
         val local = checkCurrentFrame().locals[targetIndex]
 
         when (local.type) {
-            LocalType.Float32 -> local.float32 =
-                valueReader(ShellType.Float32).float32
+            LocalType.Float32 -> valueReader(ShellType.Float32) { shell ->
+                local.float32 = shell.float32
+            }
 
-            LocalType.Float64 -> local.float64 =
-                valueReader(ShellType.Float64).float64
+            LocalType.Float64 -> valueReader(ShellType.Float64) { shell ->
+                local.float64 = shell.float64
+            }
 
-            LocalType.Int32 -> local.int32 = valueReader(ShellType.Int32).int32
-            LocalType.Int64 -> local.int64 = valueReader(ShellType.Int64).int64
-            LocalType.Reference -> local.reference =
-                valueReader(ShellType.Reference).reference
+            LocalType.Int32 -> valueReader(ShellType.Int32) { shell ->
+                local.int32 = shell.int32
+            }
 
-            LocalType.Vector128 -> {
-                val value = valueReader(ShellType.Vector128)
-                local.vector128Lsb = value.vector128Lsb
-                local.vector128Msb = value.vector128Msb
+            LocalType.Int64 -> valueReader(ShellType.Int64) { shell ->
+                local.int64 = shell.int64
+            }
+
+            LocalType.Reference -> valueReader(ShellType.Reference) { shell ->
+                local.reference = shell.reference
+            }
+
+            LocalType.Vector128 -> valueReader(ShellType.Vector128) { shell ->
+                local.vector128Lsb = shell.vector128Lsb
+                local.vector128Msb = shell.vector128Msb
             }
         }
     }

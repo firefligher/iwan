@@ -12,12 +12,8 @@ object DefaultValues {
         NumberType.Float64 -> 0.0
         NumberType.Int32 -> 0
         NumberType.Int64 -> 0L
-        ReferenceType.ExternalReference ->
-            ReferenceNull(ReferenceType.ExternalReference)
-
-        ReferenceType.FunctionReference ->
-            ReferenceNull(ReferenceType.FunctionReference)
-
+        ReferenceType.ExternalReference -> ReferenceNull.EXTERNAL
+        ReferenceType.FunctionReference -> ReferenceNull.FUNCTION
         VectorType.Vector128 -> error("Unsupported Operation")
     }
 }
