@@ -27,4 +27,7 @@ data class LocalContainer(
     override fun hashCode(): Int {
         return locals.contentHashCode()
     }
+
+    override fun toString() =
+        "LocalContainer(locals=${locals.contentToString()})"
 }

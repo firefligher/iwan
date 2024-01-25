@@ -135,6 +135,12 @@ object FlatExecutor : InstructionExecutionContainer {
     @JvmStatic
     fun execInt32Or(stack: Stack) = execInt32Binary(stack) { a, b -> a or b }
 
+    @InstructionExecutor(UniqueIds.INT32_ROTL)
+    @JvmStatic
+    fun execInt32Rotl(stack: Stack) = execInt32Binary(stack) { a, b ->
+        a.rotateLeft(b)
+    }
+
     @InstructionExecutor(UniqueIds.INT32_SHL)
     @JvmStatic
     fun execInt32Shl(stack: Stack) = execInt32Binary(stack) { a, b ->

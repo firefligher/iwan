@@ -32,9 +32,7 @@ object BranchExecutor : InstructionExecutionContainer {
             if (index < instruction.labelIndices.size) {
                 instruction.labelIndices[index].toInt()
             } else {
-                instruction
-                    .labelIndices[instruction.tableIndex.toInt()]
-                    .toInt()
+                instruction.tableIndex.toInt()
             } + 1,
             isBranch = true
         )

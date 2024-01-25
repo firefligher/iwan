@@ -10,6 +10,8 @@ import dev.fir3.iwan.io.wasm.models.valueTypes.ValueType
 interface Stack {
     val currentModule: ModuleInstance
 
+    fun computeElementCount(): Int
+
     fun dropFrame(isReturn: Boolean)
     fun dropLabels(count: Int, isBranch: Boolean)
     fun dropPreviousValue()

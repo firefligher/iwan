@@ -37,6 +37,18 @@ class DefaultStack : Stack {
         "No label available."
     }
 
+    override fun computeElementCount(): Int {
+        var current = _currentHead
+        var count = 0
+
+        while (current !== null) {
+            current = current.previous
+            count++
+        }
+
+        return count
+    }
+
     override fun dropFrame(isReturn: Boolean) {
         val frame = checkCurrentFrame()
 
