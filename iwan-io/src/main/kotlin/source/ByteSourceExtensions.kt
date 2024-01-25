@@ -138,7 +138,7 @@ internal fun ByteSource.readVarInt64(): Long {
         round++
     } while (byte and 0x80uL != 0uL)
 
-    if (round < 5 && (byte and 0x40uL) != 0uL) {
+    if (round < 10 && (byte and 0x40uL) != 0uL) {
         result = result or (0xFFFFFFFF_FFFFFFFFuL shl (round * 7))
     }
 

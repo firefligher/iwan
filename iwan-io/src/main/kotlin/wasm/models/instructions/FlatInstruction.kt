@@ -239,7 +239,7 @@ enum class FlatInstruction(override val uniqueId: Int) : Instruction {
     INT32_REM_U(0xFF),
 
     @InstructionInfo(0x77u, FlatInstructionStrategy::class)
-    INT32_ROTL(0xFF),
+    INT32_ROTL(UniqueIds.INT32_ROTL),
 
     @InstructionInfo(0x78u, FlatInstructionStrategy::class)
     INT32_ROTR(0xFF),
